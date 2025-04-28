@@ -18,7 +18,6 @@ jobs:
         run: |
           TIMESTAMP=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
 
-          # Build the payload with jq for proper escaping
           PAYLOAD=$(jq -c \
             --arg repo      "$GITHUB_REPO" \
             --arg actor     "$GITHUB_ACTOR" \
@@ -29,12 +28,13 @@ jobs:
                 {
                   title: "🚀 New Push to \($repo)",
                   description:
-                    "**Author:** [\($actor)](https://github.com/\($actor))\n" +
-                    "**Branch:** \($branch)\n" +
-                    "**Commits:**\n" +
-                    ( .commits
-                      | map("- [`\(.id[0:7])`](\(.url)) \(.message|gsub("\n";" "))")
-                      | join("\n")
+                    ( "**Author:** [\($actor)](https://github.com/\($actor))\n" +
+                      "**Branch:** \($branch)\n" +
+                      "**Commits:**\n" +
+                      ( .commits
+                        | map("- [`\(.id[0:7])`](\(.url)) \(.message|gsub("\n";" "))")
+                        | join("\n")
+                      )
                     ),
                   color: 5814783,
                   timestamp: $timestamp,
@@ -47,8 +47,6 @@ jobs:
               ]
             }' "$GITHUB_EVENT_PATH")
 
-          # Send it off to Discord
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "$PAYLOAD" \
+               -X POST -d "$PAYLOAD" \
                "$DISCORD_WEBHOOK_URL"
