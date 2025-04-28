@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  # ✅ super important for push
+      contents: write  # <--- 🔥 THIS IS THE FIX 🔥
 
     steps:
     - name: Checkout source repo
