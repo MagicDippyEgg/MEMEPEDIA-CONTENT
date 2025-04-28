@@ -26,12 +26,18 @@ jobs:
       - name: Clone backup repository
         run: git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git backup_repo
 
-      # Step 4: Copy all files from MEMEPEDIA-CONTENT to the backup repository
+      # Step 4: Print the directory structure to debug
+      - name: List directory contents
+        run: |
+          echo "Listing files in the current directory:"
+          ls -R
+
+      # Step 5: Copy all files from MEMEPEDIA-CONTENT to the backup repository
       - name: Copy files to backup repository
         run: |
           cp -r MEMEPEDIA-CONTENT/* backup_repo/  # Copy all files from MEMEPEDIA-CONTENT folder to backup repo
           
-      # Step 5: Commit and push changes
+      # Step 6: Commit and push changes
       - name: Commit and push changes
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Use the Personal Access Token stored in secrets
