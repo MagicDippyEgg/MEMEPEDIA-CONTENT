@@ -3,7 +3,7 @@ import subprocess
 
 # Backup repository details
 backup_repo = "git@github.com:MagicDippyEgg/MEMEPEDIA-BACKUP.git"
-source_repo = "https://github.com/MagicDippyEgg/MEMEPEDIA.git"
+source_repo = "https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT.git"
 token = os.getenv("GH_TOKEN")
 
 # Directory for cloning the source repo
