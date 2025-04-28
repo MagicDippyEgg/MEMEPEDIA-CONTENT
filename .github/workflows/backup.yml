@@ -26,7 +26,7 @@ jobs:
 
     - name: Copy source files to backup repository
       run: |
-        cp -r * backup_repo/  # Copy all files to the backup repo
+        cp -r ./* backup_repo/  # Copy all files except for the 'backup_repo' folder
 
     - name: Commit and push changes to backup repository
       run: |
