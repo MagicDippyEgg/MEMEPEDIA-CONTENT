@@ -12,7 +12,7 @@ g = Github(GITHUB_TOKEN)
 repo = g.get_repo(REPO_NAME)
 
 # Define the backup folder (replace with your directory to backup)
-BACKUP_DIR = '/path/to/your/files'  # For example: '/home/runner/work/MEMEPEDIA-CONTENT'
+BACKUP_DIR = '/home/runner/work/MEMEPEDIA-CONTENT'  # For example: '/home/runner/work/MEMEPEDIA-CONTENT'
 
 # Function to upload files to GitHub repository
 def upload_files():
