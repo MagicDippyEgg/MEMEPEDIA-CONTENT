@@ -4,15 +4,14 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '0 0 * * *'  # (optional) every day at midnight
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  # IMPORTANT: allow push to repos
+      contents: write  # ✅ super important for push
 
     steps:
     - name: Checkout source repo
@@ -27,9 +26,14 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         path: backup_repo
 
-    - name: Copy files
+    - name: Clear backup repo
       run: |
-        rsync -av --delete --exclude=backup_repo/ ./source_repo/ ./backup_repo/
+        cd backup_repo
+        find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+    - name: Copy files to backup repo
+      run: |
+        cp -r source_repo/* backup_repo/
 
     - name: Commit and push backup
       working-directory: backup_repo
@@ -37,5 +41,5 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Automated backup" || echo "No changes to commit"
+        git commit -m "Automated backup $(date)" || echo "No changes to commit"
         git push
