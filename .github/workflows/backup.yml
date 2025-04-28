@@ -20,17 +20,17 @@ jobs:
         git config --global user.name "MagicDippyEgg"
         git config --global user.email "magicdippyegg@gmail.com"
     
-    - name: Clone backup repository
+    - name: Clone backup repository (outside of the source repo)
       run: |
-        git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git backup_repo
+        git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git /tmp/backup_repo
 
     - name: Copy source files to backup repository
       run: |
-        cp -r ./* backup_repo/  # Copy all files except for the 'backup_repo' folder
+        cp -r ./* /tmp/backup_repo/  # Copy all files except for the 'backup_repo' folder
 
     - name: Commit and push changes to backup repository
       run: |
-        cd backup_repo
+        cd /tmp/backup_repo
         git add .
         git commit -m "Automated backup"
         git push https://$GH_TOKEN@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git HEAD:main
