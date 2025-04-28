@@ -9,18 +9,25 @@ jobs:
   alert:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord embed alert with commit message
+      - name: Send polished Discord embed alert
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
           curl -H "Content-Type: application/json" -X POST -d "{
             \"embeds\": [{
               \"title\": \"🚀 New Push to ${GITHUB_REPO}\",
-              \"description\": \"**Author:** ${GITHUB_ACTOR}\n**Commit Message:** ${GITHUB_COMMIT_MESSAGE}\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})\",
-              \"color\": 5814783
+              \"description\": \"**Author:** [${GITHUB_ACTOR}](https://github.com/${GITHUB_ACTOR})\\n**Branch:** ${GITHUB_REF_NAME}\\n**Commit Message:** ${GITHUB_COMMIT_MESSAGE}\\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})\",
+              \"color\": 5814783,
+              \"timestamp\": \"$(date --utc +%Y-%m-%dT%H:%M:%SZ)\",
+              \"author\": {
+                \"name\": \"${GITHUB_ACTOR}\",
+                \"url\": \"https://github.com/${GITHUB_ACTOR}\",
+                \"icon_url\": \"https://github.com/${GITHUB_ACTOR}.png\"
+              }
             }]
           }" $DISCORD_WEBHOOK_URL
