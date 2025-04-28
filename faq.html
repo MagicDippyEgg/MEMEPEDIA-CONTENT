@@ -40,7 +40,7 @@
       color: #cc5500;
       cursor: pointer;
     }
-    .faq-item p {
+    .faq-item p, .faq-item iframe {
       margin-top: 5px;
       display: none;
     }
@@ -131,7 +131,12 @@
     const question = item.querySelector('h3');
     question.addEventListener('click', () => {
       const answer = item.querySelector('p');
-      answer.style.display = (answer.style.display === 'none' || answer.style.display === '') ? 'block' : 'none';
+      const iframe = item.querySelector('iframe');
+      
+      // Toggle visibility of both the answer and iframe
+      const isVisible = answer.style.display === 'block' || iframe.style.display === 'block';
+      answer.style.display = isVisible ? 'none' : 'block';
+      iframe.style.display = isVisible ? 'none' : 'block';
     });
   });
 </script>
