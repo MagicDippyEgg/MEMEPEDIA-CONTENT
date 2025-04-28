@@ -1,37 +1,48 @@
 import os
-import shutil
-from github import Github
+import subprocess
 
-# Replace this with your GitHub repository details
-GITHUB_TOKEN = os.getenv('GH_TOKEN')  # GitHub token set as an environment variable
-REPO_NAME = 'MagicDippyEgg/MEMEPEDIA-BACKUP'  # Example: 'MagicDippyEgg/MEMEPEDIA-BACKUP'
-BRANCH_NAME = 'main'
+# Backup repository details
+backup_repo = "git@github.com:MagicDippyEgg/MEMEPEDIA-BACKUP.git"
+source_repo = "https://github.com/MagicDippyEgg/MEMEPEDIA.git"
+token = os.getenv("GH_TOKEN")
 
-# Initialize GitHub API client
-g = Github(GITHUB_TOKEN)
-repo = g.get_repo(REPO_NAME)
+# Directory for cloning the source repo
+backup_dir = "/tmp/memepedia_backup"
 
-# Define the backup folder (replace with your directory to backup)
-BACKUP_DIR = '/home/runner/work/MEMEPEDIA-CONTENT'  # For example: '/home/runner/work/MEMEPEDIA-CONTENT'
+# Clone the source repo
+def clone_repo():
+    try:
+        print("Cloning source repository...")
+        subprocess.run(["git", "clone", source_repo, backup_dir], check=True)
+        print("Source repository cloned successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error cloning repository: {e}")
+        raise
 
-# Function to upload files to GitHub repository
-def upload_files():
-    for filename in os.listdir(BACKUP_DIR):
-        file_path = os.path.join(BACKUP_DIR, filename)
-        if os.path.isfile(file_path):
-            with open(file_path, 'rb') as f:
-                content = f.read()
-                try:
-                    # This will create or update the file on the repository
-                    repo.create_file(
-                        f'backup/{filename}',  # Path where files will be saved in GitHub repo
-                        'Backup of files',  # Commit message
-                        content,
-                        branch=BRANCH_NAME
-                    )
-                    print(f'File {filename} uploaded successfully.')
-                except Exception as e:
-                    print(f'Failed to upload {filename}: {e}')
+# Push to backup repo
+def push_to_backup():
+    try:
+        print("Pushing changes to backup repository...")
+        # Change to the backup repo directory
+        os.chdir(backup_dir)
+        
+        # Set up remote origin with the backup repo
+        subprocess.run(["git", "remote", "add", "backup", backup_repo], check=True)
+        
+        # Set up Git config
+        subprocess.run(["git", "config", "user.name", "GitHub Actions"], check=True)
+        subprocess.run(["git", "config", "user.email", "actions@github.com"], check=True)
+        
+        # Add all files, commit, and push
+        subprocess.run(["git", "add", "."], check=True)
+        subprocess.run(["git", "commit", "-m", "Backup commit from GitHub Actions"], check=True)
+        subprocess.run(["git", "push", "backup", "main"], check=True)
+        
+        print("Backup to GitHub repository successful.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during backup: {e}")
+        raise
 
-if __name__ == '__main__':
-    upload_files()
+if __name__ == "__main__":
+    clone_repo()
+    push_to_backup()
