@@ -17,7 +17,9 @@ def run_git_command(command, cwd=None):
 def clone_backup_repo():
     if os.path.exists(backup_repo_path):
         print(f"Backup repo already exists at {backup_repo_path}. Pulling latest changes...")
-        run_git_command(['git', 'pull'], cwd=backup_repo_path)
+        result = run_git_command(['git', 'pull'], cwd=backup_repo_path)
+        if result.returncode != 0:
+            raise Exception(f"Error pulling backup repository: {result.stderr.decode('utf-8')}")
     else:
         print("Cloning backup repository...")
         result = run_git_command(['git', 'clone', backup_repo_url, backup_repo_path])
@@ -76,7 +78,14 @@ def main():
             shutil.rmtree(backup_repo_path)
         
         # Now, copy the source repository to the backup path
+        print(f"Copying source files to {backup_repo_path}...")
         shutil.copytree(source_repo_path, backup_repo_path)
+        
+        # Verify the files were copied
+        if os.path.exists(backup_repo_path):
+            print("Files successfully copied.")
+        else:
+            print("Error: Files were not copied to the backup directory.")
         
         # Push the changes to the backup repository
         push_to_backup()
