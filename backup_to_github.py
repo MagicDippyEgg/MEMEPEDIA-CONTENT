@@ -39,8 +39,8 @@ def clone_source_repo():
 # Push changes to the backup repository
 def push_to_backup():
     print("Checking for changes...")
-    # Check for changes in the backup repo
-    result = run_git_command(['git', 'status', '--porcelain'], cwd=backup_repo_path)
+    # Check for changes using git diff instead of git status
+    result = run_git_command(['git', 'diff'], cwd=backup_repo_path)
     
     if result.stdout:
         print("Changes detected, committing and pushing...")
