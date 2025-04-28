@@ -17,14 +17,10 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d @- $DISCORD_WEBHOOK_URL <<EOF
-{
-  "embeds": [{
-    "title": "🚀 New Push to ${GITHUB_REPO}",
-    "description": "**Author:** ${GITHUB_ACTOR}\n**Commit Message:** ${GITHUB_COMMIT_MESSAGE}\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})",
-    "color": 5814783
-  }]
-}
-EOF
+          curl -H "Content-Type: application/json" -X POST -d '{
+            "embeds": [{
+              "title": "🚀 New Push to '${GITHUB_REPO}'",
+              "description": "**Author:** '${GITHUB_ACTOR}'\n**Commit Message:** '${GITHUB_COMMIT_MESSAGE}'\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})",
+              "color": 5814783
+            }]
+          }' $DISCORD_WEBHOOK_URL
