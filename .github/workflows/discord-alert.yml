@@ -16,18 +16,26 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          COMMITS=$(jq -r '.commits[] | "- [`\(.id[0:7])`](\(.url)) \(.message | gsub("\n"; " "))"' $GITHUB_EVENT_PATH)
+          # Prepare the commit messages using jq to parse the event data
+          COMMITS=$(jq -r '.commits[] | "- [`\(.id[0:7])`](\(.url)) \(.message | gsub("\n"; " "))"' $GITHUB_EVENT_PATH | paste -s -d "\n")
 
-          curl -H "Content-Type: application/json" -X POST -d "{
-            \"embeds\": [{
-              \"title\": \"🚀 New Push to ${GITHUB_REPO}\",
-              \"description\": \"**Author:** [${GITHUB_ACTOR}](https://github.com/${GITHUB_ACTOR})\\n**Branch:** ${GITHUB_REF_NAME}\\n**Commits:**\\n${COMMITS}\",
-              \"color\": 5814783,
-              \"timestamp\": \"$(date --utc +%Y-%m-%dT%H:%M:%SZ)\",
-              \"author\": {
-                \"name\": \"${GITHUB_ACTOR}\",
-                \"url\": \"https://github.com/${GITHUB_ACTOR}\",
-                \"icon_url\": \"https://github.com/${GITHUB_ACTOR}.png\"
-              }
-            }]
-          }" $DISCORD_WEBHOOK_URL
+          # Construct the final JSON payload
+          PAYLOAD=$(cat <<EOF
+{
+  "embeds": [{
+    "title": "🚀 New Push to ${GITHUB_REPO}",
+    "description": "**Author:** [${GITHUB_ACTOR}](https://github.com/${GITHUB_ACTOR})\n**Branch:** ${GITHUB_REF_NAME}\n**Commits:**\n${COMMITS}\n",
+    "color": 5814783,
+    "timestamp": "$(date --utc +%Y-%m-%dT%H:%M:%SZ)",
+    "author": {
+      "name": "${GITHUB_ACTOR}",
+      "url": "https://github.com/${GITHUB_ACTOR}",
+      "icon_url": "https://github.com/${GITHUB_ACTOR}.png"
+    }
+  }]
+}
+EOF
+)
+
+          # Send the payload to Discord via webhook
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" $DISCORD_WEBHOOK_URL
