@@ -1,30 +1,33 @@
-name: Backup Repository
+name: Backup to GitHub
 
 on:
   push:
     branches:
-      - main
-  schedule:
-    - cron: '0 0 * * *'  # Runs every day at midnight (UTC)
+      - main  # Or the branch you want to monitor
 
 jobs:
   backup:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      # Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
 
-      - name: Add Backup Repository Remote
+      # Install necessary Python packages
+      - name: Install dependencies
         run: |
-          git remote add backup https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git
-          git fetch backup
+          python -m pip install --upgrade pip
+          pip install requests PyGithub
 
-      - name: Push to Backup Repository
+      # Run the backup script
+      - name: Run backup script
         run: |
-          git push backup main
+          python backup_to_github.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
