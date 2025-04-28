@@ -114,6 +114,7 @@
   <div class="faq-item">
     <h3>Why can't I speak in the discord server?</h3>
     <p>Make sure you have accepted the rules by reacting to automod with a ✅ in the #rules channel and then make sure you have verified by going into the #verify channel clicking on the thread then typing /verify and sending it. If you are still having issues, create a post in the #help channel.</p>
+    <!-- Remove iframe from the toggle logic -->
     <iframe width="560" height="315" src="https://www.youtube.com/embed/5I5YMN_8rcE?si=SG1ZX0RrYt4Vk6W0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
   
@@ -135,8 +136,8 @@
       const answer = item.querySelector('p');
       const iframe = item.querySelector('iframe');
       
-      // Toggle visibility of both the answer and iframe
-      const isVisible = answer.style.display === 'block' || iframe.style.display === 'block';
+      // Toggle visibility of both the answer and iframe, separate the iframe logic
+      const isVisible = answer.style.display === 'block';
       answer.style.display = isVisible ? 'none' : 'block';
       iframe.style.display = isVisible ? 'none' : 'block';
     });
