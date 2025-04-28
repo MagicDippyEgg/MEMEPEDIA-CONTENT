@@ -1,0 +1,36 @@
+name: Backup Repository
+
+on:
+  push:
+    branches:
+      - main  # Trigger backup when there are changes to the 'main' branch
+  schedule:
+    - cron: '0 0 * * *'  # Runs once a day at midnight UTC
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source repository
+      uses: actions/checkout@v3
+
+    - name: Set up Git configuration
+      run: |
+        git config --global user.name "MagicDippyEgg"
+        git config --global user.email "magicdippyegg@gmail.com"
+    
+    - name: Clone backup repository
+      run: |
+        git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git backup_repo
+
+    - name: Copy source files to backup repository
+      run: |
+        cp -r * backup_repo/  # Copy all files to the backup repo
+
+    - name: Commit and push changes to backup repository
+      run: |
+        cd backup_repo
+        git add .
+        git commit -m "Automated backup"
+        git push https://$GH_TOKEN@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git HEAD:main
