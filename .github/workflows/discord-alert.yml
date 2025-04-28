@@ -1,3 +1,14 @@
+name: Discord Alert on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
       - name: Send Discord embed alert for all commits
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -7,7 +18,7 @@
         run: |
           TIMESTAMP=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
 
-          # Let jq build the embed JSON for us
+          # Build the payload with jq for proper escaping
           PAYLOAD=$(jq -c \
             --arg repo      "$GITHUB_REPO" \
             --arg actor     "$GITHUB_ACTOR" \
@@ -36,6 +47,7 @@
               ]
             }' "$GITHUB_EVENT_PATH")
 
+          # Send it off to Discord
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "$PAYLOAD" \
