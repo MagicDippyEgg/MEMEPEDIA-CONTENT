@@ -39,6 +39,12 @@ def clone_source_repo():
         if result.returncode != 0:
             raise Exception(f"Error cloning source repository: {result.stderr.decode('utf-8')}")
 
+# Set Git user name and email
+def set_git_user_identity():
+    print("Setting Git user name and email for commits...")
+    run_git_command(['git', 'config', 'user.name', 'MagicDippyEgg'])
+    run_git_command(['git', 'config', 'user.email', 'magicdippyegg@gmail.com'])
+
 # Push changes to the backup repository
 def push_to_backup():
     print("Checking for changes...")
@@ -96,6 +102,9 @@ def main():
         fetch_result = run_git_command(['git', 'fetch'], cwd=backup_repo_path)
         if fetch_result.returncode != 0:
             raise Exception(f"Error fetching latest changes from backup repo: {fetch_result.stderr.decode('utf-8')}")
+        
+        # Set Git user identity for commits
+        set_git_user_identity()
         
         # Add all files explicitly to Git
         result = run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
