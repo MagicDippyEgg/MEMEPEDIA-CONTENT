@@ -1,48 +1,79 @@
 import os
 import subprocess
+import shutil
 
-# Backup repository details
-backup_repo = "git@github.com:MagicDippyEgg/MEMEPEDIA-BACKUP.git"
-source_repo = "https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT.git"
-token = os.getenv("GH_TOKEN")
+# Set up the repository paths
+source_repo_path = '/home/runner/work/MEMEPEDIA-CONTENT/MEMEPEDIA-CONTENT'
+backup_repo_path = '/tmp/memepedia_backup'
+backup_repo_url = 'https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git'
+gh_token = os.getenv('GH_TOKEN')
 
-# Directory for cloning the source repo
-backup_dir = "/tmp/memepedia_backup"
+# Function to run git commands
+def run_git_command(command, cwd=None):
+    result = subprocess.run(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return result
 
-# Clone the source repo
-def clone_repo():
-    try:
-        print("Cloning source repository...")
-        subprocess.run(["git", "clone", source_repo, backup_dir], check=True)
-        print("Source repository cloned successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error cloning repository: {e}")
-        raise
+# Clone the backup repository
+def clone_backup_repo():
+    if os.path.exists(backup_repo_path):
+        print(f"Backup repo already exists at {backup_repo_path}. Pulling latest changes...")
+        run_git_command(['git', 'pull'], cwd=backup_repo_path)
+    else:
+        print("Cloning backup repository...")
+        result = run_git_command(['git', 'clone', backup_repo_url, backup_repo_path])
+        if result.returncode != 0:
+            raise Exception(f"Error cloning backup repository: {result.stderr.decode('utf-8')}")
 
-# Push to backup repo
+# Push changes to the backup repository
 def push_to_backup():
+    # Check for changes in the backup repo
+    result = run_git_command(['git', 'status', '--porcelain'], cwd=backup_repo_path)
+    if result.stdout:
+        print("Changes detected, committing and pushing...")
+        # Stage the changes
+        run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
+        
+        # Commit the changes
+        commit_result = run_git_command(['git', 'commit', '-m', 'Backup commit from GitHub Actions'], cwd=backup_repo_path)
+        
+        if commit_result.returncode != 0:
+            print("No changes to commit.")
+        else:
+            # Push the changes to the backup repository
+            push_result = run_git_command(['git', 'push', 'origin', 'main'], cwd=backup_repo_path)
+            if push_result.returncode == 0:
+                print("Backup successfully pushed.")
+            else:
+                print(f"Error during push: {push_result.stderr.decode('utf-8')}")
+    else:
+        print("No changes detected in the source repository.")
+
+# Main process
+def main():
     try:
-        print("Pushing changes to backup repository...")
-        # Change to the backup repo directory
-        os.chdir(backup_dir)
+        # Clone the source repo
+        print("Cloning source repository...")
+        result = run_git_command(['git', 'clone', 'https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT.git', source_repo_path])
+        if result.returncode != 0:
+            raise Exception(f"Error cloning source repository: {result.stderr.decode('utf-8')}")
+
+        # Clone the backup repository
+        clone_backup_repo()
         
-        # Set up remote origin with the backup repo
-        subprocess.run(["git", "remote", "add", "backup", backup_repo], check=True)
+        # Copy all files from source to backup repository
+        print(f"Copying files from {source_repo_path} to {backup_repo_path}...")
+        if os.path.exists(backup_repo_path):
+            # Clear the backup folder before copying new files
+            shutil.rmtree(backup_repo_path)
+            os.makedirs(backup_repo_path)
+        shutil.copytree(source_repo_path, backup_repo_path)
         
-        # Set up Git config
-        subprocess.run(["git", "config", "user.name", "GitHub Actions"], check=True)
-        subprocess.run(["git", "config", "user.email", "actions@github.com"], check=True)
-        
-        # Add all files, commit, and push
-        subprocess.run(["git", "add", "."], check=True)
-        subprocess.run(["git", "commit", "-m", "Backup commit from GitHub Actions"], check=True)
-        subprocess.run(["git", "push", "backup", "main"], check=True)
-        
-        print("Backup to GitHub repository successful.")
-    except subprocess.CalledProcessError as e:
+        # Push the changes to the backup repository
+        push_to_backup()
+
+    except Exception as e:
         print(f"Error during backup: {e}")
-        raise
+        exit(1)
 
 if __name__ == "__main__":
-    clone_repo()
-    push_to_backup()
+    main()
