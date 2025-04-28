@@ -3,17 +3,26 @@ name: Discord Alert on Push
 on:
   push:
     branches:
-      - main  # or whatever branch you want
+      - main  # or your branch
 
 jobs:
   alert:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord alert
+      - name: Send Discord embed alert
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d '{"content": "New push to the repo by '${{ github.actor }}'!"}' \
+               -d '{
+                  "embeds": [{
+                    "title": "🚀 New Push to '${{ env.GITHUB_REPO }}'",
+                    "description": "**Author:** '${{ env.GITHUB_ACTOR }}'\n[View Commit](https://github.com/${{ env.GITHUB_REPO }}/commit/${{ env.GITHUB_SHA }})",
+                    "color": 5814783
+                  }]
+               }' \
                $DISCORD_WEBHOOK_URL
