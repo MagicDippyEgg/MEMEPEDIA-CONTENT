@@ -67,12 +67,15 @@ def main():
         # Clone the backup repository
         clone_backup_repo()
         
-        # Clear the backup folder and copy new files
+        # Delete existing backup folder and copy new files
         print(f"Copying files from {source_repo_path} to {backup_repo_path}...")
+        
+        # Remove the backup folder if it exists
         if os.path.exists(backup_repo_path):
-            # Clear the backup folder before copying new files
+            print(f"Deleting existing backup directory at {backup_repo_path}...")
             shutil.rmtree(backup_repo_path)
-            os.makedirs(backup_repo_path)
+        
+        # Now, copy the source repository to the backup path
         shutil.copytree(source_repo_path, backup_repo_path)
         
         # Push the changes to the backup repository
