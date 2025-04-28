@@ -38,11 +38,13 @@ def clone_source_repo():
 
 # Push changes to the backup repository
 def push_to_backup():
+    print("Checking for changes...")
     # Check for changes in the backup repo
     result = run_git_command(['git', 'status', '--porcelain'], cwd=backup_repo_path)
+    
     if result.stdout:
         print("Changes detected, committing and pushing...")
-        # Stage the changes
+        # Stage the changes explicitly
         run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
         
         # Commit the changes
@@ -87,7 +89,7 @@ def main():
         else:
             print("Error: Files were not copied to the backup directory.")
         
-        # Push the changes to the backup repository
+        # Check for changes and push the changes to the backup repository
         push_to_backup()
 
     except Exception as e:
