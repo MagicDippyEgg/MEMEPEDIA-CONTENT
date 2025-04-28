@@ -89,9 +89,21 @@ def main():
         else:
             print("Error: Files were not copied to the backup directory.")
         
-        # Check for changes and push the changes to the backup repository
-        push_to_backup()
-
+        # Change to the backup repo directory to check for changes
+        os.chdir(backup_repo_path)
+        
+        # Initialize git in case the repo is new
+        result = run_git_command(['git', 'init'], cwd=backup_repo_path)
+        
+        # Add all files and check for changes
+        run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
+        result = run_git_command(['git', 'diff'], cwd=backup_repo_path)
+        
+        if result.stdout:
+            push_to_backup()
+        else:
+            print("No changes detected in the backup repository.")
+        
     except Exception as e:
         print(f"Error during backup: {e}")
         exit(1)
