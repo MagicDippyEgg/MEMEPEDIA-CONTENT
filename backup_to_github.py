@@ -42,7 +42,7 @@ def copy_files():
 # Function to check for changes and commit them to the backup repository
 def check_and_commit_changes():
     print("Checking for changes...")
-    subprocess.run(["git", "add", "."], cwd=backup_repo_path, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=backup_repo_path, check=True)  # Force add all changes (including deletions)
     result = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=backup_repo_path)
     
     if result.returncode == 0:
