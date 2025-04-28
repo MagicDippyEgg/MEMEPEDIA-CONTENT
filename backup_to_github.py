@@ -24,6 +24,16 @@ def clone_backup_repo():
         if result.returncode != 0:
             raise Exception(f"Error cloning backup repository: {result.stderr.decode('utf-8')}")
 
+# Clone the source repository
+def clone_source_repo():
+    if os.path.exists(source_repo_path):
+        print(f"Source repository already exists at {source_repo_path}. Skipping clone.")
+    else:
+        print("Cloning source repository...")
+        result = run_git_command(['git', 'clone', 'https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT.git', source_repo_path])
+        if result.returncode != 0:
+            raise Exception(f"Error cloning source repository: {result.stderr.decode('utf-8')}")
+
 # Push changes to the backup repository
 def push_to_backup():
     # Check for changes in the backup repo
@@ -51,16 +61,13 @@ def push_to_backup():
 # Main process
 def main():
     try:
-        # Clone the source repo
-        print("Cloning source repository...")
-        result = run_git_command(['git', 'clone', 'https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT.git', source_repo_path])
-        if result.returncode != 0:
-            raise Exception(f"Error cloning source repository: {result.stderr.decode('utf-8')}")
-
+        # Clone the source repo if it doesn't exist
+        clone_source_repo()
+        
         # Clone the backup repository
         clone_backup_repo()
         
-        # Copy all files from source to backup repository
+        # Clear the backup folder and copy new files
         print(f"Copying files from {source_repo_path} to {backup_repo_path}...")
         if os.path.exists(backup_repo_path):
             # Clear the backup folder before copying new files
