@@ -11,6 +11,9 @@ gh_token = os.getenv('GH_TOKEN')
 # Function to run git commands
 def run_git_command(command, cwd=None):
     result = subprocess.run(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(f"Running command: {' '.join(command)}")
+    print(f"Command output: {result.stdout.decode('utf-8')}")
+    print(f"Command error: {result.stderr.decode('utf-8')}")
     return result
 
 # Clone the backup repository
@@ -39,28 +42,23 @@ def clone_source_repo():
 # Push changes to the backup repository
 def push_to_backup():
     print("Checking for changes...")
-    # Check for changes using git diff instead of git status
-    result = run_git_command(['git', 'diff'], cwd=backup_repo_path)
     
-    if result.stdout:
-        print("Changes detected, committing and pushing...")
-        # Stage the changes explicitly
-        run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
-        
-        # Commit the changes
-        commit_result = run_git_command(['git', 'commit', '-m', 'Backup commit from GitHub Actions'], cwd=backup_repo_path)
-        
-        if commit_result.returncode != 0:
-            print("No changes to commit.")
-        else:
-            # Push the changes to the backup repository
-            push_result = run_git_command(['git', 'push', 'origin', 'main'], cwd=backup_repo_path)
-            if push_result.returncode == 0:
-                print("Backup successfully pushed.")
-            else:
-                print(f"Error during push: {push_result.stderr.decode('utf-8')}")
+    # Stage all changes to ensure Git tracks them
+    result = run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
+    if result.returncode != 0:
+        raise Exception(f"Error adding files: {result.stderr.decode('utf-8')}")
+    
+    # Commit changes
+    commit_result = run_git_command(['git', 'commit', '-m', 'Backup commit from GitHub Actions'], cwd=backup_repo_path)
+    if commit_result.returncode != 0:
+        print("No changes to commit.")
     else:
-        print("No changes detected in the source repository.")
+        # Push the changes to the backup repository
+        push_result = run_git_command(['git', 'push', 'origin', 'main'], cwd=backup_repo_path)
+        if push_result.returncode == 0:
+            print("Backup successfully pushed.")
+        else:
+            print(f"Error during push: {push_result.stderr.decode('utf-8')}")
 
 # Main process
 def main():
@@ -70,9 +68,6 @@ def main():
         
         # Clone the backup repository
         clone_backup_repo()
-        
-        # Delete existing backup folder and copy new files
-        print(f"Copying files from {source_repo_path} to {backup_repo_path}...")
         
         # Remove the backup folder if it exists
         if os.path.exists(backup_repo_path):
@@ -94,15 +89,19 @@ def main():
         
         # Initialize git in case the repo is new
         result = run_git_command(['git', 'init'], cwd=backup_repo_path)
+        if result.returncode != 0:
+            raise Exception(f"Error initializing git in backup repo: {result.stderr.decode('utf-8')}")
         
-        # Add all files and check for changes
-        run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
-        result = run_git_command(['git', 'diff'], cwd=backup_repo_path)
+        # Fetch the latest changes from the backup repo to ensure we're synced
+        fetch_result = run_git_command(['git', 'fetch'], cwd=backup_repo_path)
+        if fetch_result.returncode != 0:
+            raise Exception(f"Error fetching latest changes from backup repo: {fetch_result.stderr.decode('utf-8')}")
         
-        if result.stdout:
-            push_to_backup()
-        else:
-            print("No changes detected in the backup repository.")
+        # Add all files explicitly to Git
+        result = run_git_command(['git', 'add', '.'], cwd=backup_repo_path)
+        
+        # Commit and push the changes if any are detected
+        push_to_backup()
         
     except Exception as e:
         print(f"Error during backup: {e}")
