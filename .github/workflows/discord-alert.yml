@@ -9,19 +9,19 @@ jobs:
   alert:
     runs-on: ubuntu-latest
     steps:
-      - name: Send polished Discord embed alert
+      - name: Send Discord embed alert with multiple commits
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
-          GITHUB_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
+          COMMITS=$(jq -r '.commits[] | "- [`\(.id[0:7])`](\(.url)) \(.message | gsub("\n"; " "))"' $GITHUB_EVENT_PATH)
+
           curl -H "Content-Type: application/json" -X POST -d "{
             \"embeds\": [{
               \"title\": \"🚀 New Push to ${GITHUB_REPO}\",
-              \"description\": \"**Author:** [${GITHUB_ACTOR}](https://github.com/${GITHUB_ACTOR})\\n**Branch:** ${GITHUB_REF_NAME}\\n**Commit Message:** ${GITHUB_COMMIT_MESSAGE}\\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})\",
+              \"description\": \"**Author:** [${GITHUB_ACTOR}](https://github.com/${GITHUB_ACTOR})\\n**Branch:** ${GITHUB_REF_NAME}\\n**Commits:**\\n${COMMITS}\",
               \"color\": 5814783,
               \"timestamp\": \"$(date --utc +%Y-%m-%dT%H:%M:%SZ)\",
               \"author\": {
