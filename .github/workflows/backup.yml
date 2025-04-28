@@ -1,48 +1,37 @@
-name: Backup to GitHub Repository
+name: "Backup Repository"
 
 on:
   push:
-    branches:
-      - main  # Trigger backup whenever changes are pushed to the main branch (adjust as needed)
+    branches: [ main ]
   schedule:
-    - cron: '0 0 * * *'  # Daily backup at midnight (adjust as needed)
+    # Run daily at 00:00 UTC
+    - cron: '0 0 * * *'
 
 jobs:
   backup:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout the main repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout main repository
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Git user
-      - name: Set up Git user
+      - name: Checkout backup repository
+        uses: actions/checkout@v4
+        with:
+          repository: MagicDippyEgg/MEMEPEDIA-BACKUP
+          token: ${{ secrets.GH_TOKEN }}
+          path: backup
+
+      - name: Copy files to backup directory
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # Use rsync to mirror files, excluding Git data and the backup folder itself
+          rsync -av --delete --exclude='.git*' --exclude='backup' ./ backup/
 
-      # Step 3: Clone the backup repository
-      - name: Clone backup repository
-        run: git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git backup_repo
-
-      # Step 4: Print the directory structure to debug
-      - name: List directory contents
-        run: |
-          echo "Listing files in the current directory:"
-          ls -R
-
-      # Step 5: Copy all files from MEMEPEDIA-CONTENT to the backup repository
-      - name: Copy files to backup repository
-        run: |
-          cp -r MEMEPEDIA-CONTENT/* backup_repo/  # Copy all files from MEMEPEDIA-CONTENT folder to backup repo
-          
-      # Step 6: Commit and push changes
       - name: Commit and push changes
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Use the Personal Access Token stored in secrets
+        working-directory: backup
         run: |
-          cd backup_repo
-          git add .
-          git commit -m "Backup commit from GitHub Actions"
-          git push https://$GH_TOKEN@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git
+          # Set commit author to GitHub Actions bot
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m "Automated backup commit" || echo "No changes to commit"
+          git push origin HEAD:main
