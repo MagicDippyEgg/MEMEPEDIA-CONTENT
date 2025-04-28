@@ -31,8 +31,7 @@ jobs:
 
     - name: Authenticate with Google Drive API
       run: |
-        python -c "
-import os
+        python -c "import os
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
@@ -54,5 +53,4 @@ if not files:
     print('No files found.')
 else:
     for file in files:
-        print(f\"File ID: {file['id']}, Name: {file['name']}\")
-        "
+        print(f\"File ID: {file['id']}, Name: {file['name']}\")"
