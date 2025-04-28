@@ -3,7 +3,7 @@ name: Discord Alert on Push
 on:
   push:
     branches:
-      - main  # or whatever branch you use
+      - main
 
 jobs:
   alert:
@@ -19,11 +19,12 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d '{
-                  "embeds": [{
-                    "title": "🚀 New Push to '${{ env.GITHUB_REPO }}'",
-                    "description": "**Author:** '${{ env.GITHUB_ACTOR }}'\n**Commit Message:** '${{ env.GITHUB_COMMIT_MESSAGE }}'\n[View Commit](https://github.com/${{ env.GITHUB_REPO }}/commit/${{ env.GITHUB_SHA }})",
-                    "color": 5814783
-                  }]
-               }' \
-               $DISCORD_WEBHOOK_URL
+               -d @- $DISCORD_WEBHOOK_URL <<EOF
+{
+  "embeds": [{
+    "title": "🚀 New Push to ${GITHUB_REPO}",
+    "description": "**Author:** ${GITHUB_ACTOR}\n**Commit Message:** ${GITHUB_COMMIT_MESSAGE}\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})",
+    "color": 5814783
+  }]
+}
+EOF
