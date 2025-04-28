@@ -1,36 +1,36 @@
-name: Backup Repository
+name: Backup MEMEPEDIA content
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # optional: every day at midnight
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # VERY important so GITHUB_TOKEN can push
+
     steps:
-    - name: Checkout source repository
-      uses: actions/checkout@v3
+    - name: Checkout source repo
+      uses: actions/checkout@v4
 
-    - name: Set up Git configuration
+    - name: Clone backup repo
       run: |
-        git config --global user.name "MagicDippyEgg"
-        git config --global user.email "magicdippyegg@gmail.com"
+        git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git backup_repo
 
-    - name: Clone backup repository (outside of source)
+    - name: Copy files
       run: |
-        git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git /tmp/backup_repo
-
-    - name: Copy source files to backup repository
+        rsync -av --exclude=backup_repo ./ backup_repo/
+    
+    - name: Commit and push to backup repo
       run: |
-        cp -r ./* /tmp/backup_repo/
-
-    - name: Commit and push changes to backup repository
-      run: |
-        cd /tmp/backup_repo
+        cd backup_repo
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Automated backup"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git HEAD:main
+        git commit -m "Automated backup" || echo "Nothing to commit"
+        git push origin main
