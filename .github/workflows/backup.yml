@@ -3,9 +3,9 @@ name: Backup Repository
 on:
   push:
     branches:
-      - main  # Trigger backup when there are changes to the 'main' branch
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Runs once a day at midnight UTC
+    - cron: '0 0 * * *'
 
 jobs:
   backup:
@@ -19,18 +19,18 @@ jobs:
       run: |
         git config --global user.name "MagicDippyEgg"
         git config --global user.email "magicdippyegg@gmail.com"
-    
-    - name: Clone backup repository (outside of the source repo)
+
+    - name: Clone backup repository (outside of source)
       run: |
         git clone https://github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git /tmp/backup_repo
 
     - name: Copy source files to backup repository
       run: |
-        cp -r ./* /tmp/backup_repo/  # Copy all files except for the 'backup_repo' folder
+        cp -r ./* /tmp/backup_repo/
 
     - name: Commit and push changes to backup repository
       run: |
         cd /tmp/backup_repo
         git add .
         git commit -m "Automated backup"
-        git push https://$GH_TOKEN@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git HEAD:main
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/MagicDippyEgg/MEMEPEDIA-BACKUP.git HEAD:main
