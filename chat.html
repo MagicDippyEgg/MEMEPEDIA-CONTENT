@@ -159,8 +159,15 @@ async function fetchMessages() {
       throw new Error('Received invalid message format');
     }
 
-    const chatContainer = document.getElementById('chat-container');
-    chatContainer.innerHTML = ''; // Clear existing messages
+    const messagesContainer = document.getElementById('messagesContainer');
+
+    // Make sure messagesContainer exists before modifying it
+    if (!messagesContainer) {
+      console.error('Messages container not found!');
+      return;
+    }
+
+    messagesContainer.innerHTML = ''; // Clear existing messages
 
     messages.forEach((message) => {
       const messageElement = document.createElement('div');
@@ -170,12 +177,15 @@ async function fetchMessages() {
       messageElement.innerHTML = `
         <strong>${message.author.username}</strong>: ${message.content}
       `;
-      chatContainer.appendChild(messageElement);
+      messagesContainer.appendChild(messageElement);
     });
 
   } catch (error) {
     console.error('Error fetching messages:', error);
-    document.getElementById('chat-container').innerHTML = 'Failed to fetch messages';
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (messagesContainer) {
+      messagesContainer.innerHTML = 'Failed to fetch messages';
+    }
   }
 }
 
