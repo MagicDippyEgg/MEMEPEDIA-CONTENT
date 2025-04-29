@@ -47,15 +47,22 @@
     background-color: #b34700;
   }
 
-  .messages-container {
+  .chat-container {
     margin: 30px auto;
     padding: 20px;
     background-color: #222222;
     border-radius: 8px;
+    width: 80%; /* Ensure it fits inside */
+    box-sizing: border-box;
+  }
+
+  .messages-container {
+    margin-bottom: 20px;
     max-height: 400px;
     overflow-y: auto;
-    width: 80%; /* Adjust the width to make it fit inside the container */
-    box-sizing: border-box; /* Ensure padding is included in the width */
+    background-color: #333333;
+    padding: 15px;
+    border-radius: 8px;
   }
 
   .message {
@@ -68,6 +75,39 @@
   .message .author {
     color: #cc5500;
     font-weight: bold;
+  }
+
+  .message .content {
+    color: #ffffff;
+  }
+
+  .input-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .input-container input {
+    padding: 10px;
+    width: 80%;
+    font-size: 16px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: none;
+  }
+
+  .input-container button {
+    padding: 10px 20px;
+    background-color: #cc5500;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .input-container button:hover {
+    background-color: #b34700;
   }
 
   footer {
