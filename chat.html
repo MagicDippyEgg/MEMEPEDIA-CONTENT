@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Memepedia</title>
+  <link rel="icon" href="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true">
 <style>
   body {
     font-family: 'Arial', sans-serif;
@@ -73,3 +80,79 @@
     bottom: 0;
   }
 </style>
+</head>
+<body>
+
+<header>
+  <h1>Memepedia Chat</h1>
+  <img src="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" alt="Memepedia Logo">
+</header>
+
+<main>
+  <div class="messages-container" id="messagesContainer">
+    <!-- Messages will be appended here -->
+  </div>
+
+  <input type="text" id="memeInput" placeholder="Type your meme here..." style="padding: 10px; width: 80%; margin-top: 20px; border-radius: 8px;">
+  <button id="sendMeme" class="button" style="margin-top: 10px;">Send Meme</button>
+</main>
+
+<footer>
+  Created by #1 Logical Potato, with help from Magic Dippy Egg | Memepedia: Rebirth
+</footer>
+
+<script>
+  // Fetch messages every 2 seconds to keep them live
+  async function fetchMessages() {
+    try {
+      const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages');
+      const messages = await response.json();
+
+      const messagesContainer = document.getElementById('messagesContainer');
+      messagesContainer.innerHTML = ''; // Clear the messages
+
+      // Display the last 5 messages
+      messages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.innerHTML = `<span class="author">${msg.author}</span>: ${msg.content}`;
+        messagesContainer.appendChild(messageDiv);
+      });
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  }
+
+  // Fetch messages on page load and then every 2 seconds
+  fetchMessages();
+  setInterval(fetchMessages, 2000);
+
+  // Send a meme message
+  document.getElementById('sendMeme').addEventListener('click', async () => {
+    const memeInput = document.getElementById('memeInput');
+    const memeContent = memeInput.value.trim();
+
+    if (memeContent) {
+      try {
+        const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: memeContent }),
+        });
+
+        if (response.ok) {
+          memeInput.value = ''; // Clear the input field
+        } else {
+          console.error('Failed to send meme');
+        }
+      } catch (error) {
+        console.error('Error sending meme:', error);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
