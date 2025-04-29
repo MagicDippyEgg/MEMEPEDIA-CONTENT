@@ -142,56 +142,45 @@
 </footer>
 
 <script>
-  // Fetch messages every 2 seconds to keep them live
-  async function fetchMessages() {
-    try {
-      const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages');
-      const messages = await response.json();
-
-      const messagesContainer = document.getElementById('messagesContainer');
-      messagesContainer.innerHTML = ''; // Clear the messages
-
-      // Display the last 5 messages
-      messages.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message';
-        messageDiv.innerHTML = `<span class="author">${msg.author}</span>: ${msg.content}`;
-        messagesContainer.appendChild(messageDiv);
-      });
-    } catch (error) {
-      console.error('Error fetching messages:', error);
+async function fetchMessages() {
+  try {
+    // Fetch the latest 5 messages from the backend
+    const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages');
+    
+    // Check if the response is OK
+    if (!response.ok) {
+      throw new Error(`Error fetching messages: ${response.statusText}`);
     }
+
+    const messages = await response.json();
+    
+    // Check if the response is an array of messages
+    if (!Array.isArray(messages)) {
+      throw new Error('Received invalid message format');
+    }
+
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.innerHTML = ''; // Clear existing messages
+
+    messages.forEach((message) => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      
+      // Add message content and author
+      messageElement.innerHTML = `
+        <strong>${message.author.username}</strong>: ${message.content}
+      `;
+      chatContainer.appendChild(messageElement);
+    });
+
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    document.getElementById('chat-container').innerHTML = 'Failed to fetch messages';
   }
+}
 
-  // Fetch messages on page load and then every 2 seconds
-  fetchMessages();
-  setInterval(fetchMessages, 2000);
-
-  // Send a meme message
-  document.getElementById('sendMeme').addEventListener('click', async () => {
-    const memeInput = document.getElementById('memeInput');
-    const memeContent = memeInput.value.trim();
-
-    if (memeContent) {
-      try {
-        const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ content: memeContent }),
-        });
-
-        if (response.ok) {
-          memeInput.value = ''; // Clear the input field
-        } else {
-          console.error('Failed to send meme');
-        }
-      } catch (error) {
-        console.error('Error sending meme:', error);
-      }
-    }
-  });
+// Fetch messages every 2 seconds
+setInterval(fetchMessages, 2000);
 </script>
 
 </body>
