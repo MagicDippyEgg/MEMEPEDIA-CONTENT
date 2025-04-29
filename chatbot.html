@@ -6,58 +6,85 @@
   <title>MEMEPEDIA AI Chatbot</title>
   <style>
     body {
-      background-color: #121212;
-      color: white;
+      background-color: #0e0e0e;
+      color: #e0e0e0;
       font-family: 'Arial', sans-serif;
+      margin: 0;
       padding: 20px;
     }
+
     h1 {
-      color: #00ffcc;
+      color: #00fff7;
+      text-align: center;
+      text-shadow: 0 0 8px #00fff7;
     }
+
     #chat {
-      border: 2px solid #00ffcc;
-      padding: 10px;
+      border: 2px solid #00fff7;
       border-radius: 10px;
-      max-width: 600px;
-      margin: auto;
-      background-color: #1e1e1e;
+      padding: 15px;
+      background-color: #1a1a1a;
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+      height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 0 15px #00fff7;
     }
+
     .message {
       margin-bottom: 10px;
     }
+
     .user {
       color: #00bfff;
     }
+
     .bot {
-      color: #90ee90;
+      color: #00ff7f;
     }
-    input, button {
+
+    #inputArea {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    input {
+      flex-grow: 1;
       padding: 10px;
       font-size: 16px;
-      margin-top: 10px;
-    }
-    input {
-      width: 80%;
       background-color: #333;
-      border: none;
-      color: white;
+      border: 1px solid #555;
+      color: #fff;
+      border-radius: 5px;
     }
+
     button {
-      background-color: #00ffcc;
+      padding: 10px 20px;
+      background-color: #00fff7;
       color: black;
+      font-weight: bold;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
+
     button:hover {
-      background-color: #00cc99;
+      background-color: #00ccbb;
     }
   </style>
 </head>
 <body>
   <h1>MEMEPEDIA AI Chatbot</h1>
   <div id="chat"></div>
-  <input type="text" id="userInput" placeholder="Say something..." />
-  <button onclick="sendMessage()">Send</button>
+
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Say something..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
   <script>
     const chatDiv = document.getElementById("chat");
@@ -65,7 +92,7 @@
     function addMessage(text, sender) {
       const messageDiv = document.createElement("div");
       messageDiv.className = `message ${sender}`;
-      messageDiv.textContent = `${sender === "user" ? "You" : "Gemini"}: ${text}`;
+      messageDiv.textContent = `${sender === "user" ? "You" : "Memepedia Bot"}: ${text}`;
       chatDiv.appendChild(messageDiv);
       chatDiv.scrollTop = chatDiv.scrollHeight;
     }
@@ -92,7 +119,7 @@
         if (!response.ok) {
           addMessage(`Error: ${data.error}`, "bot");
         } else {
-          const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
+          const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Memepedia Bot.";
           addMessage(botReply, "bot");
         }
       } catch (err) {
