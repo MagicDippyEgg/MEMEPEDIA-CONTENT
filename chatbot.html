@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Memepedia AI Chatbot</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      font-family: Arial, sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background-color: #2c2c2c;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffd700;
+    }
+
+    .chat-box {
+      background-color: #1a1a1a;
+      border-radius: 6px;
+      padding: 10px;
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .user {
+      color: #00afff;
+    }
+
+    .bot {
+      color: #90ee90;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Memepedia AI Chatbot</h1>
+    <div id="chatBox" class="chat-box"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+
+    async function sendMessage() {
+      const input = userInput.value.trim();
+      if (!input) return;
+
+      appendMessage("You", input, "user");
+      userInput.value = "";
+
+      try {
+        const res = await fetch("https://memepedia-backend.vercel.app/api/gemini-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: input })
+        });
+
+        if (!res.ok) throw new Error("Failed to get response from Gemini");
+
+        const data = await res.json();
+        const response = data.response || "No response";
+
+        appendMessage("Gemini", response, "bot");
+      } catch (err) {
+        console.error(err);
+        appendMessage("Error", "Something went wrong. Try again later.", "bot");
+      }
+    }
+
+    function appendMessage(sender, text, className) {
+      const div = document.createElement("div");
+      div.className = `message ${className}`;
+      div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Send message on Enter key
+    userInput.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
