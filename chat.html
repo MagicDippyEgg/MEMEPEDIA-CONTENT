@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Meme to Memepedia Discord</title>
+  <link rel="icon" href="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background-color: #cc5500;
+      color: #ffffff;
+      padding: 20px 0;
+    }
+    main {
+      padding: 30px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #111111;
+      padding: 30px;
+      border-radius: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+      background-color: #222222;
+      color: white;
+    }
+    .button {
+      background-color: #cc5500;
+      color: white;
+      padding: 15px 25px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #b34700;
+    }
+    footer {
+      background-color: #111;
+      color: #aaaaaa;
+      padding: 15px 0;
+      font-size: 14px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Send Your Meme Message</h1>
+</header>
+
+<main>
+  <form id="memeForm">
+    <textarea id="message" placeholder="Type your meme message here..." required></textarea>
+    <button class="button" type="submit">Send to Memepedia Discord</button>
+  </form>
+</main>
+
+<footer>
+  Created by #1 Logical Potato, with help from Magic Dippy Egg | Memepedia: Rebirth
+</footer>
+
+<script>
+  document.getElementById('memeForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const message = document.getElementById('message').value;
+
+    const response = await fetch('https://your-vercel-project-name.vercel.app/api/send-to-discord', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content: message })
+    });
+
+    if (response.ok) {
+      alert('Meme sent successfully!');
+      document.getElementById('memeForm').reset();
+    } else {
+      alert('Failed to send meme. Please try again later.');
+    }
+  });
+</script>
+
+</body>
+</html>
