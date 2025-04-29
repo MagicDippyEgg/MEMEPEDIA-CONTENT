@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Memepedia AI Chatbot</title>
-  <link rel="icon" href="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true">
+  <link rel="icon" href="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" />
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -62,10 +62,13 @@
       border-radius: 8px;
       margin-bottom: 10px;
       padding: 10px;
+      text-align: left;
     }
     .message .author {
       color: #cc5500;
       font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
     }
     .message .content {
       color: #ffffff;
@@ -109,18 +112,16 @@
 <body>
   <header>
     <h1>Memepedia AI Chatbot</h1>
-    <img src="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" alt="Memepedia Logo">
+    <img src="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" alt="Memepedia Logo" />
   </header>
   <main>
-  
-  <a href="index" class="button">Back to Home</a>
+    <a href="index" class="button">Back to Home</a>
     <div class="chat-container">
-      <div class="messages-container" id="messages"></div>
+      <div class="messages-container" id="messagesContainer"></div>
       <div class="input-container">
-        <input type="text" id="userMessage" placeholder="Type your message here...">
-        <button onclick="sendMessage()" class="button">Send</button>
+        <input type="text" id="userInput" placeholder="Ask something to the Memepedia Bot..." />
+        <button id="sendMessage" class="button">Send</button>
       </div>
-      <div id="loading" class="loading" style="display:none;">Bot is typing...</div>
     </div>
   </main>
   <footer>
@@ -128,62 +129,62 @@
   </footer>
 
   <script>
-    const messagesContainer = document.getElementById('messages');
-    const userMessageInput = document.getElementById('userMessage');
-    const loadingIndicator = document.getElementById('loading');
+    const messagesContainer = document.getElementById("messagesContainer");
+
+    function appendMessage(content, author = "user") {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message");
+      const authorSpan = document.createElement("span");
+      authorSpan.classList.add("author");
+      authorSpan.textContent = author === "user" ? "You" : "Memepedia Bot";
+      const contentSpan = document.createElement("span");
+      contentSpan.classList.add("content");
+      contentSpan.textContent = content;
+      messageDiv.appendChild(authorSpan);
+      messageDiv.appendChild(contentSpan);
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
     async function sendMessage() {
-        const userMessage = userMessageInput.value.trim();
-        if (userMessage) {
-            appendMessage(userMessage, 'user');
-            userMessageInput.value = '';
-            loadingIndicator.style.display = 'block';
+      const input = document.getElementById("userInput");
+      const userMessage = input.value.trim();
+      if (!userMessage) return;
 
-            try {
-                const response = await fetch('https://memepedia-backend.vercel.app/api/gemini-chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: userMessage })
-                });
-                
-                const data = await response.json();
-                console.log("API Response:", data); // Added for debugging
-                
-                if (data && data.reply) {
-                    appendMessage(data.reply, 'bot');
-                } else {
-                    appendMessage('No response from bot. Please try again.', 'bot');
-                }
-            } catch (error) {
-                appendMessage('Something went wrong. Try again later.', 'bot');
-                console.error('Error:', error);
-            } finally {
-                loadingIndicator.style.display = 'none';
-            }
+      appendMessage(userMessage, "user");
+      input.value = "";
+
+      try {
+        const response = await fetch("https://memepedia-backend.vercel.app/api/gemini-chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: userMessage })
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
+
+        const data = await response.json();
+        const botReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (botReply) {
+          appendMessage(botReply, "bot");
+        } else {
+          appendMessage("No response from bot. Please try again.", "bot");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        appendMessage("Error: Something went wrong. Try again later.", "bot");
+      }
     }
 
-    function appendMessage(message, sender) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-        
-        const author = document.createElement('div');
-        author.classList.add('author');
-        author.textContent = sender === 'user' ? 'You' : 'Memepedia Bot';
-
-        const content = document.createElement('div');
-        content.classList.add('content');
-        content.textContent = message;
-
-        messageElement.appendChild(author);
-        messageElement.appendChild(content);
-
-        messagesContainer.appendChild(messageElement);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;  // Auto scroll to latest message
-    }
+    document.getElementById("sendMessage").addEventListener("click", sendMessage);
+    document.getElementById("userInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
   </script>
 </body>
 </html>
