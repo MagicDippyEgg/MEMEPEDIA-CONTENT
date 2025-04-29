@@ -113,7 +113,7 @@
   </header>
   <main>
   
-    <a href="index" class="button">Back to Home</a>
+  <a href="index" class="button">Back to Home</a>
     <div class="chat-container">
       <div class="messages-container" id="messages"></div>
       <div class="input-container">
@@ -147,12 +147,14 @@
                     },
                     body: JSON.stringify({ message: userMessage })
                 });
-                const data = await response.json();
                 
-                if (data.error) {
-                    appendMessage('Something went wrong. Try again later.', 'bot');
-                } else {
+                const data = await response.json();
+                console.log("API Response:", data); // Added for debugging
+                
+                if (data && data.reply) {
                     appendMessage(data.reply, 'bot');
+                } else {
+                    appendMessage('No response from bot. Please try again.', 'bot');
                 }
             } catch (error) {
                 appendMessage('Something went wrong. Try again later.', 'bot');
