@@ -41,7 +41,7 @@ Engage with our fun and interactive AI chatbot that brings an extra layer of ent
 
 ## 💬 Contact
 
-For inquiries, suggestions, or collaborations, feel free to reach out on our **[Discord server](https://discord.gg/yvCTUBHNks)**.
+For inquiries, suggestions, or collaborations, feel free to reach out on our **[Discord server](https://discord.gg/yvCTUBHNks)** or email us at [memepediarebirth@gmail.com](mailto:memepediarebirth@gmail.com).
 
 ---
 
