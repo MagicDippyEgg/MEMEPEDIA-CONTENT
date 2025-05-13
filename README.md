@@ -34,8 +34,8 @@ Engage with our fun and interactive AI chatbot that brings an extra layer of ent
 
 - **Join Our Discord**: [Click here to join](https://discord.gg/yvCTUBHNks)
 - **Contribute to the Meme Gallery**: Share your memes and artwork on our website.
-- **Follow Us on YouTube**: [Memepedia Rebirth YouTube Channel](https://www.youtube.com/channel/UCXXXX) *(replace with actual link)*  
-- **Follow Us on TikTok**: [Memepedia Rebirth TikTok](https://www.tiktok.com/@XXXX) *(replace with actual link)*
+- **Follow Us on YouTube**: [Memepedia Rebirth YouTube Channel](https://www.youtube.com/@MemepediaRebirth)
+- **Follow Us on TikTok**: [Memepedia Rebirth TikTok](https://www.tiktok.com/@memepedia.rebirth)
 
 ---
 
@@ -48,7 +48,7 @@ For inquiries, suggestions, or collaborations, feel free to reach out on our **[
 ## 🔗 Useful Links
 - [Memepedia Rebirth Website](https://magicdippyegg.github.io/MEMEPEDIA-CONTENT/)
 - [Discord Server Invite](https://discord.gg/yvCTUBHNks)
-- [YouTube Channel](https://www.youtube.com/channel/UCXXXX) *(replace with actual link)*
+- [YouTube Channel](https://www.youtube.com/@MemepediaRebirth)
 
 ---
 
