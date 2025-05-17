@@ -1,0 +1,23 @@
+name: Mirror to Bitbucket
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # full clone
+
+      - name: Push to Bitbucket
+        env:
+          BB_USERNAME: ${{ secrets.BB_USERNAME }}
+          BB_APP_PASS: ${{ secrets.BB_APP_PASS }}
+        run: |
+          git remote add bitbucket https://${BB_USERNAME}:${BB_APP_PASS}@bitbucket.org/magicdippyegg/MEMEPEDIA-CONTENT.git
+          git push --mirror bitbucket
