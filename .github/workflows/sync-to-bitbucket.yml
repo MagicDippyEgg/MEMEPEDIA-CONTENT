@@ -19,5 +19,5 @@ jobs:
           BB_USERNAME: ${{ secrets.BB_USERNAME }}
           BB_APP_PASS: ${{ secrets.BB_APP_PASS }}
         run: |
-          git remote add bitbucket https://magicdippyegg:${{ secrets.BB_APP_PASS }}@bitbucket.org/memepedia/MEMEPEDIA-CONTENT.git
+          git remote add bitbucket https://magicdippyegg:${{ secrets.BB_APP_PASS }}@bitbucket.org/Memepedia/MEMEPEDIA-CONTENT.git
           git push --mirror bitbucket
