@@ -3,19 +3,25 @@ name: Mirror to SourceForge
 on:
   push:
     branches:
-      - main  # your branch
+      - main  # your branch name here
 
 jobs:
   push-to-sourceforge:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # full history for mirroring
+          fetch-depth: 0
+
+      - name: Add SourceForge remote (no creds in URL)
+        run: git remote add sourceforge https://git.code.sf.net/p/MEMEPEDIA-CONTENT/git
+
+      - name: Configure git to use stored credentials
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.SF_USERNAME }}:${{ secrets.SF_PASSWORD }}@git.code.sf.net" > ~/.git-credentials
 
       - name: Push to SourceForge
-        run: |
-          git remote add sourceforge https://${{ secrets.SF_USERNAME }}:${{ secrets.SF_PASSWORD }}@git.code.sf.net/p/MEMEPEDIA-CONTENT/git
-          git push sourceforge main --force
+        run: git push sourceforge main --force
