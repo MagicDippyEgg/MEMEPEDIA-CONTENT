@@ -3,7 +3,7 @@ name: Mirror to SourceForge
 on:
   push:
     branches:
-      - main
+      - main  # or your branch name
 
 jobs:
   push-to-sourceforge:
@@ -15,13 +15,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add SourceForge remote
-        run: git remote add sourceforge https://git.code.sf.net/p/MEMEPEDIA-CONTENT/git
-
-      - name: Setup Git credentials
+      - name: Add SourceForge remote with credentials
         run: |
-          echo "https://${{ secrets.SF_USERNAME }}:${{ secrets.SF_PASSWORD }}@git.code.sf.net" > ~/.git-credentials
-          git config --global credential.helper 'store --file ~/.git-credentials'
+          git remote add sourceforge https://${{ secrets.SF_USERNAME }}:${{ secrets.SF_PASSWORD_ENCODED }}@git.code.sf.net/p/MEMEPEDIA-CONTENT/git
 
       - name: Push to SourceForge
         run: git push sourceforge main --force
