@@ -1,3 +1,8 @@
+> ⚠️ **Legacy Branch Warning**  
+> You are currently viewing the **legacy branch**.  
+> This branch exists only for the **old URL of the website** and is no longer actively maintained.  
+> Please refer to the `main` branch for the most up-to-date content.
+
 # Memepedia Rebirth
 
 Welcome to **Memepedia Rebirth**! 🎉  
