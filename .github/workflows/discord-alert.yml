@@ -3,7 +3,7 @@ name: Discord Alert on Push
 on:
   push:
     branches:
-      - main
+      - download
 
 jobs:
   alert:
