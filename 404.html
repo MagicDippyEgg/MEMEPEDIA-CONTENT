@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="0; url=https://memepedia.pages.dev/">
   <script>
-    // Redirect keeping the path
+    const prefix = '/MEMEPEDIA-CONTENT';
     const currentPath = window.location.pathname;
-    const newUrl = "https://memepedia.pages.dev" + currentPath;
+    let newPath = currentPath.startsWith(prefix) ? currentPath.slice(prefix.length) : currentPath;
+    if (!newPath.startsWith('/')) newPath = '/' + newPath;
+    const newUrl = "https://memepedia.pages.dev" + newPath;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("redirectLink").href = newUrl;
+    });
+
     window.location.replace(newUrl);
   </script>
 </head>
 <body>
   <p>If you are not redirected automatically, <a id="redirectLink" href="#">click here</a>.</p>
-  <script>
-    document.getElementById("redirectLink").href = newUrl;
-  </script>
 </body>
 </html>
