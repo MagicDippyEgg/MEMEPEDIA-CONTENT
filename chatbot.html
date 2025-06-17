@@ -139,15 +139,26 @@
 <script>
   const messagesContainer = document.getElementById("messagesContainer");
 
+  // Holds chat history (system + user + assistant messages)
+  const chatHistory = [
+    {
+      role: "system",
+      content: "You are Memepedia Bot, a helpful assistant who knows about memes and chats casually."
+    }
+  ];
+
   function appendMessage(content, author = "user") {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
+
     const authorSpan = document.createElement("span");
     authorSpan.classList.add("author");
     authorSpan.textContent = author === "user" ? "You" : "Memepedia Bot";
+
     const contentSpan = document.createElement("span");
     contentSpan.classList.add("content");
     contentSpan.textContent = content;
+
     messageDiv.appendChild(authorSpan);
     messageDiv.appendChild(contentSpan);
     messagesContainer.appendChild(messageDiv);
@@ -160,6 +171,7 @@
     if (!userMessage) return;
 
     appendMessage(userMessage, "user");
+    chatHistory.push({ role: "user", content: userMessage });
     input.value = "";
 
     try {
@@ -168,7 +180,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ message: userMessage })
+        body: JSON.stringify({ messages: chatHistory })
       });
 
       if (!response.ok) {
@@ -180,6 +192,7 @@
 
       if (botReply) {
         appendMessage(botReply, "bot");
+        chatHistory.push({ role: "assistant", content: botReply });
       } else {
         appendMessage("No response from bot. Please try again.", "bot");
       }
