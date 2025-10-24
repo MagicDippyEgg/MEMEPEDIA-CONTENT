@@ -66,6 +66,28 @@
     .button:hover {
       background-color: #b34700;
     }
+    
+    /* New CSS for Orange-Themed Video Styling */
+    .styled-video-container {
+        /* A dark background to blend with the page */
+        background-color: #111111; 
+        border-radius: 8px; /* Matches the spotify-item radius */
+        /* Orange shadow based on the theme color */
+        box-shadow: 0 4px 20px rgba(204, 85, 0, 0.7), 
+                    0 0 0 2px rgba(204, 85, 0, 0.2); 
+        overflow: hidden; /* Ensures the video corners are rounded */
+        max-width: 500px; /* Constrain the size for a better look */
+        width: 100%; /* Make it responsive within the max-width */
+        margin-bottom: 20px;
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .styled-video-container video {
+        display: block; /* Removes any extra spacing below the video */
+        width: 100%; /* Video fills its stylish container */
+        height: auto; /* Maintains aspect ratio */
+    }
+
   </style>
 </head>
 <body>
@@ -78,14 +100,13 @@
 
 <main>
   <div class="video-embed">
-<video width="30%" height="20%" controls="" autoplay="" muted="">
-    <source src="https://rick.nerial.uk/video.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-    </div>
-
-
-  </div>
+<div class="styled-video-container">
+    <video width="100%" height="auto" controls="" autoplay="" muted="">
+        <source src="https://rick.nerial.uk/video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+</div>
 </main>
 
 <footer>
