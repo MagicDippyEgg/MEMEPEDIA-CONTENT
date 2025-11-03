@@ -46,7 +46,7 @@ For inquiries, suggestions, or collaborations, feel free to reach out on our **[
 ---
 
 ## 🔗 Useful Links
-- [Memepedia Rebirth Website](https://magicdippyegg.github.io/MEMEPEDIA-CONTENT/)
+- [Memepedia Rebirth Website](https://memepedia.pages.dev/)
 - [Discord Server Invite](https://discord.gg/yvCTUBHNks)
 - [YouTube Channel](https://www.youtube.com/@MemepediaRebirth)
 
