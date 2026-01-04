@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://memepedia.pages.dev/chat" />
   <link rel="icon" href="icon_smaller.jpg" type="image/png">
   <style>
-    /* KEPT YOUR ORIGINAL PAGE STYLING */
+    /* ORIGINAL MEMEPEDIA STYLING */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #000000;
@@ -48,7 +48,7 @@
       background-color: #b34700;
     }
 
-    /* IMPROVED CHAT UI (STAYS INSIDE THE BOX) */
+    /* CHAT UI IMPROVEMENTS */
     .chat-container {
       margin: 30px auto;
       padding: 20px;
@@ -60,7 +60,7 @@
     }
     .messages-container {
       margin-bottom: 20px;
-      height: 500px; /* Fixed height for better scrolling */
+      height: 500px; /* Fixed height for scrolling */
       overflow-y: auto;
       background-color: #333333;
       padding: 15px;
@@ -68,27 +68,31 @@
       text-align: left;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      scroll-behavior: smooth;
     }
     .message {
       background-color: #444444;
       border-radius: 8px;
       padding: 12px;
       word-wrap: break-word;
-      border-left: 4px solid #cc5500; /* Subtle accent */
+      border-left: 4px solid #cc5500;
     }
     .message .author {
       color: #cc5500;
       font-weight: bold;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
+    }
+    .message .content {
+      color: #ffffff;
     }
     
-    /* MEDIA STYLING */
+    /* MEDIA EMBEDS */
     .embed-media {
       max-width: 100%;
       max-height: 400px;
-      border-radius: 5px;
+      border-radius: 8px;
       margin-top: 10px;
       display: block;
     }
@@ -105,7 +109,6 @@
       font-size: 16px;
       border-radius: 5px;
       border: none;
-      background: #eee;
     }
     #uploadBtn {
       padding: 10px 15px;
@@ -116,6 +119,18 @@
       padding: 15px 0;
       font-size: 14px;
       margin-top: 50px;
+    }
+
+    /* Custom Scrollbar for the Chat Box */
+    .messages-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .messages-container::-webkit-scrollbar-track {
+      background: #222;
+    }
+    .messages-container::-webkit-scrollbar-thumb {
+      background: #cc5500;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -134,12 +149,13 @@
       <div class="input-container">
         <input type="file" id="imageInput" accept="image/*,video/*" style="display: none;">
         <button id="uploadBtn" class="button" title="Upload Image">📷</button>
+        
         <input type="text" id="memeInput" placeholder="Type your message here...">
         <button id="sendMeme" class="button">Send</button>
       </div>
     </div>
 
-    <h2>Messages here are synced with the #general Discord channel.</h2>
+    <h2>Synced with #general Discord</h2>
     <iframe src="https://discord.com/widget?id=1359467119355494442&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
   </main>
 
@@ -155,12 +171,13 @@
     const imageInput = document.getElementById('imageInput');
 
     function formatContent(text) {
+      if (!text) return '';
       const urlPattern = /(https?:\/\/[^\s]+)/g;
       return text.replace(urlPattern, (url) => {
         const lowerUrl = url.toLowerCase();
-        // Images/GIFs
+        // Images & GIFs
         if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-          return `<br><img src="${url}" class="embed-media" /><br>`;
+          return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
         }
         // Videos
         if (lowerUrl.match(/\.(mp4|webm)$/)) {
@@ -169,7 +186,7 @@
         // YouTube
         if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
           const videoId = lowerUrl.includes('v=') ? lowerUrl.split('v=')[1].split('&')[0] : lowerUrl.split('/').pop();
-          return `<br><iframe width="100%" height="300" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe><br>`;
+          return `<br><iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe><br>`;
         }
         return `<a href="${url}" target="_blank" style="color: #cc5500;">${url}</a>`;
       });
@@ -185,21 +202,24 @@
         
         if (messages.length === 0) return;
 
+        // SMART SCROLL: Check if user is at the bottom before updating
+        const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
+
         messagesContainer.innerHTML = '';
+        
+        // Reverse to show newest at bottom
         messages.reverse().forEach((message) => {
           const messageElement = document.createElement('div');
           messageElement.classList.add('message');
           const authorName = message.author?.username || message.author || 'Unknown';
           
-          // 1. Get the text content and format links
           let contentHtml = formatContent(message.content || '');
 
-          // 2. Check for Discord Attachments (Directly uploaded files)
+          // Check for Discord direct uploads (attachments)
           if (message.attachments && message.attachments.length > 0) {
             message.attachments.forEach(attachment => {
               const fileUrl = attachment.url;
               const lowerUrl = fileUrl.toLowerCase();
-
               if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
                 contentHtml += `<br><img src="${fileUrl}" class="embed-media" />`;
               } else if (lowerUrl.match(/\.(mp4|webm)$/)) {
@@ -212,12 +232,16 @@
           messagesContainer.appendChild(messageElement);
         });
 
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // ONLY auto-scroll if user was already at the bottom
+        if (isAtBottom) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Fetch Error:', error);
       }
     }
 
+    // Message Sending
     sendBtn.addEventListener('click', async () => {
       const memeContent = memeInput.value.trim();
       if (!memeContent) return;
@@ -229,11 +253,17 @@
         });
         if (response.ok) {
           memeInput.value = '';
-          fetchMessages();
+          fetchMessages(); // Refresh immediately after sending
         }
       } catch (error) { console.error(error); }
     });
 
+    // Handle Enter Key
+    memeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    // Image Upload Logic
     uploadBtn.addEventListener('click', () => imageInput.click());
     imageInput.addEventListener('change', async () => {
       const file = imageInput.files[0];
