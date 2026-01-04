@@ -186,18 +186,32 @@
         if (messages.length === 0) return;
 
         messagesContainer.innerHTML = '';
-        // .reverse() puts the newest messages at the bottom
         messages.reverse().forEach((message) => {
           const messageElement = document.createElement('div');
           messageElement.classList.add('message');
           const authorName = message.author?.username || message.author || 'Unknown';
-          const content = message.content || '';
           
-          messageElement.innerHTML = `<span class="author">${authorName}</span><span class="content">${formatContent(content)}</span>`;
+          // 1. Get the text content and format links
+          let contentHtml = formatContent(message.content || '');
+
+          // 2. Check for Discord Attachments (Directly uploaded files)
+          if (message.attachments && message.attachments.length > 0) {
+            message.attachments.forEach(attachment => {
+              const fileUrl = attachment.url;
+              const lowerUrl = fileUrl.toLowerCase();
+
+              if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
+                contentHtml += `<br><img src="${fileUrl}" class="embed-media" />`;
+              } else if (lowerUrl.match(/\.(mp4|webm)$/)) {
+                contentHtml += `<br><video controls class="embed-media"><source src="${fileUrl}"></video>`;
+              }
+            });
+          }
+          
+          messageElement.innerHTML = `<span class="author">${authorName}</span><span class="content">${contentHtml}</span>`;
           messagesContainer.appendChild(messageElement);
         });
 
-        // Auto-scroll to bottom of the div
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       } catch (error) {
         console.error('Error:', error);
