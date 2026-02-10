@@ -346,47 +346,53 @@
 
     // Message Sending (Optimistic UI)
     async function sendMessage() {
-      const memeContent = memeInput.value.trim();
-      if (!memeContent) return;
+  const memeContent = memeInput.value.trim();
+  if (!memeContent) return;
 
-      const clientId = newClientId();
+  const clientId = newClientId();
 
-      // Instantly show it in chat
-      const pendingEl = addMessageToUI("You", memeContent, { pending: true, clientId });
-      pendingMessages.set(clientId, pendingEl);
+  // Check BEFORE adding message
+  const shouldAutoScroll = isUserNearBottom();
 
-      memeInput.value = '';
-      setSendUiState(true);
+  // Instantly show it in chat
+  const pendingEl = addMessageToUI("You", memeContent, { pending: true, clientId });
+  pendingMessages.set(clientId, pendingEl);
 
-      try {
-        const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: memeContent })
-        });
+  // ✅ Force scroll after adding
+  if (shouldAutoScroll) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-        if (!response.ok) {
-          pendingEl.classList.remove('pending');
-          pendingEl.classList.add('failed');
-          setSendUiState(false);
-          return;
-        }
+  memeInput.value = '';
+  setSendUiState(true);
 
-        // Mark as "sent" immediately
-        pendingEl.classList.remove('pending');
-        pendingMessages.delete(clientId);
+  try {
+    const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: memeContent })
+    });
 
-        setSendUiState(false);
-
-        // Refresh quickly so the real Discord message shows up
-        fetchMessages();
-      } catch (error) {
-        console.error(error);
-        pendingEl.classList.remove('pending');
-        pendingEl.classList.add('failed');
-        setSendUiState(false);
-      }
+    if (!response.ok) {
+      pendingEl.classList.remove('pending');
+      pendingEl.classList.add('failed');
+      setSendUiState(false);
+      return;
     }
+
+    pendingEl.classList.remove('pending');
+    pendingMessages.delete(clientId);
+
+    setSendUiState(false);
+    fetchMessages();
+  } catch (error) {
+    console.error(error);
+    pendingEl.classList.remove('pending');
+    pendingEl.classList.add('failed');
+    setSendUiState(false);
+  }
+}
+
 
     sendBtn.addEventListener('click', sendMessage);
 
