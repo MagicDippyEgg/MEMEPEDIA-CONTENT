@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Memepedia Chat</title>
-  <meta property="og:site_name" content="Memepedia Rebirth">
-  <meta name="application-name" content="Memepedia Rebirth">
+  <meta property="og:site_name" content="Memepedia Rebirth" />
+  <meta name="application-name" content="Memepedia Rebirth" />
   <link rel="canonical" href="https://memepedia.pages.dev/chat" />
-  <link rel="icon" href="icon_smaller.jpg" type="image/png">
+  <link rel="icon" href="icon_smaller.jpg" type="image/png" />
   <style>
     /* ORIGINAL MEMEPEDIA STYLING */
     body {
@@ -43,9 +43,14 @@
       transition: background-color 0.3s;
       cursor: pointer;
       border: none;
+      user-select: none;
     }
     .button:hover {
       background-color: #b34700;
+    }
+    .button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     /* CHAT UI IMPROVEMENTS */
@@ -60,7 +65,7 @@
     }
     .messages-container {
       margin-bottom: 20px;
-      height: 500px; /* Fixed height for scrolling */
+      height: 500px;
       overflow-y: auto;
       background-color: #333333;
       padding: 15px;
@@ -77,6 +82,7 @@
       padding: 12px;
       word-wrap: break-word;
       border-left: 4px solid #cc5500;
+      position: relative;
     }
     .message .author {
       color: #cc5500;
@@ -87,7 +93,33 @@
     .message .content {
       color: #ffffff;
     }
-    
+
+    /* Pending message style */
+    .message.pending {
+      opacity: 0.65;
+      border-left-color: #ffb067;
+    }
+    .message.pending::after {
+      content: "Sending...";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 12px;
+      color: #ffb067;
+    }
+    .message.failed {
+      opacity: 0.85;
+      border-left-color: #ff4d4d;
+    }
+    .message.failed::after {
+      content: "Failed";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 12px;
+      color: #ff4d4d;
+    }
+
     /* MEDIA EMBEDS */
     .embed-media {
       max-width: 100%;
@@ -109,10 +141,13 @@
       font-size: 16px;
       border-radius: 5px;
       border: none;
+      outline: none;
     }
     #uploadBtn {
       padding: 10px 15px;
+      min-width: 56px;
     }
+
     footer {
       background-color: #111;
       color: #aaaaaa;
@@ -134,29 +169,37 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Memepedia Chat</h1>
-    <img src="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" alt="Memepedia Logo">
+    <img src="https://github.com/MagicDippyEgg/MEMEPEDIA-CONTENT/blob/main/icon.png?raw=true" alt="Memepedia Logo" />
   </header>
-  
+
   <main>
     <a href="https://memepedia.pages.dev/" class="button">Back to Home</a>
-    
+
     <div class="chat-container">
       <div class="messages-container" id="messagesContainer"></div>
-      
+
       <div class="input-container">
-        <input type="file" id="imageInput" accept="image/*,video/*" style="display: none;">
+        <input type="file" id="imageInput" accept="image/*,video/*" style="display:none;" />
         <button id="uploadBtn" class="button" title="Upload Image">📷</button>
-        
-        <input type="text" id="memeInput" placeholder="Type your message here...">
+
+        <input type="text" id="memeInput" placeholder="Type your message here..." />
         <button id="sendMeme" class="button">Send</button>
       </div>
     </div>
 
     <h2>Synced with #general Discord</h2>
-    <iframe src="https://discord.com/widget?id=1359467119355494442&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+    <iframe
+      src="https://discord.com/widget?id=1359467119355494442&theme=dark"
+      width="350"
+      height="500"
+      allowtransparency="true"
+      frameborder="0"
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+    ></iframe>
   </main>
 
   <footer>
@@ -170,70 +213,121 @@
     const uploadBtn = document.getElementById('uploadBtn');
     const imageInput = document.getElementById('imageInput');
 
+    // Track pending messages so polling does not wipe them out
+    const pendingMessages = new Map(); // id -> element
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function formatContent(text) {
       if (!text) return '';
+      const safe = escapeHtml(text);
       const urlPattern = /(https?:\/\/[^\s]+)/g;
-      return text.replace(urlPattern, (url) => {
+      return safe.replace(urlPattern, (url) => {
         const lowerUrl = url.toLowerCase();
+
         // Images & GIFs
         if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
           return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
         }
+
         // Videos
         if (lowerUrl.match(/\.(mp4|webm)$/)) {
           return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
         }
+
         // YouTube
         if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
-          const videoId = lowerUrl.includes('v=') ? lowerUrl.split('v=')[1].split('&')[0] : lowerUrl.split('/').pop();
+          const videoId = lowerUrl.includes('v=')
+            ? lowerUrl.split('v=')[1].split('&')[0]
+            : lowerUrl.split('/').pop();
           return `<br><iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe><br>`;
         }
-        return `<a href="${url}" target="_blank" style="color: #cc5500;">${url}</a>`;
+
+        return `<a href="${url}" target="_blank" rel="noopener" style="color: #cc5500;">${url}</a>`;
       });
+    }
+
+    function isUserNearBottom() {
+      return (messagesContainer.scrollHeight - messagesContainer.scrollTop) <= (messagesContainer.clientHeight + 120);
+    }
+
+    function addMessageToUI(author, content, opts = {}) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+
+      if (opts.pending) messageElement.classList.add('pending');
+      if (opts.failed) messageElement.classList.add('failed');
+      if (opts.clientId) messageElement.dataset.clientId = opts.clientId;
+
+      messageElement.innerHTML = `
+        <span class="author">${escapeHtml(author || 'Unknown')}</span>
+        <span class="content">${formatContent(content || '')}</span>
+      `;
+
+      messagesContainer.appendChild(messageElement);
+      return messageElement;
     }
 
     async function fetchMessages() {
       try {
-        const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages');
+        const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages', {
+          cache: 'no-store'
+        });
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-        
+
         const data = await response.json();
         let messages = Array.isArray(data.messages) ? data.messages : (Array.isArray(data) ? data : []);
-        
+
         if (messages.length === 0) return;
 
-        // SMART SCROLL: Check if user is at the bottom before updating
-        const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
+        const shouldAutoScroll = isUserNearBottom();
+
+        // Preserve pending DOM nodes before clearing
+        const pendingNodes = Array.from(pendingMessages.values()).filter(Boolean);
 
         messagesContainer.innerHTML = '';
-        
+
         // Reverse to show newest at bottom
         messages.reverse().forEach((message) => {
           const messageElement = document.createElement('div');
           messageElement.classList.add('message');
+
           const authorName = message.author?.username || message.author || 'Unknown';
-          
+
           let contentHtml = formatContent(message.content || '');
 
-          // Check for Discord direct uploads (attachments)
+          // Attachments
           if (message.attachments && message.attachments.length > 0) {
             message.attachments.forEach(attachment => {
               const fileUrl = attachment.url;
-              const lowerUrl = fileUrl.toLowerCase();
+              const lowerUrl = String(fileUrl || '').toLowerCase();
               if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-                contentHtml += `<br><img src="${fileUrl}" class="embed-media" />`;
+                contentHtml += `<br><img src="${fileUrl}" class="embed-media" loading="lazy" />`;
               } else if (lowerUrl.match(/\.(mp4|webm)$/)) {
                 contentHtml += `<br><video controls class="embed-media"><source src="${fileUrl}"></video>`;
               }
             });
           }
-          
-          messageElement.innerHTML = `<span class="author">${authorName}</span><span class="content">${contentHtml}</span>`;
+
+          messageElement.innerHTML = `
+            <span class="author">${escapeHtml(authorName)}</span>
+            <span class="content">${contentHtml}</span>
+          `;
+
           messagesContainer.appendChild(messageElement);
         });
 
-        // ONLY auto-scroll if user was already at the bottom
-        if (isAtBottom) {
+        // Re-append pending messages so polling does not delete them
+        pendingNodes.forEach(node => messagesContainer.appendChild(node));
+
+        if (shouldAutoScroll) {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
       } catch (error) {
@@ -241,55 +335,110 @@
       }
     }
 
-    // Message Sending
-    sendBtn.addEventListener('click', async () => {
+    function setSendUiState(isSending) {
+      sendBtn.disabled = isSending;
+      sendBtn.textContent = isSending ? "Sending..." : "Send";
+    }
+
+    function newClientId() {
+      return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
+    // Message Sending (Optimistic UI)
+    async function sendMessage() {
       const memeContent = memeInput.value.trim();
       if (!memeContent) return;
+
+      const clientId = newClientId();
+
+      // Instantly show it in chat
+      const pendingEl = addMessageToUI("You", memeContent, { pending: true, clientId });
+      pendingMessages.set(clientId, pendingEl);
+
+      memeInput.value = '';
+      setSendUiState(true);
+
       try {
         const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: memeContent })
         });
-        if (response.ok) {
-          memeInput.value = '';
-          fetchMessages(); // Refresh immediately after sending
-        }
-      } catch (error) { console.error(error); }
-    });
 
-    // Handle Enter Key
-    memeInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendBtn.click();
+        if (!response.ok) {
+          pendingEl.classList.remove('pending');
+          pendingEl.classList.add('failed');
+          setSendUiState(false);
+          return;
+        }
+
+        // Mark as "sent" immediately
+        pendingEl.classList.remove('pending');
+        pendingMessages.delete(clientId);
+
+        setSendUiState(false);
+
+        // Refresh quickly so the real Discord message shows up
+        fetchMessages();
+      } catch (error) {
+        console.error(error);
+        pendingEl.classList.remove('pending');
+        pendingEl.classList.add('failed');
+        setSendUiState(false);
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Enter Key (no shift to keep it simple)
+    memeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
     // Image Upload Logic
     uploadBtn.addEventListener('click', () => imageInput.click());
+
     imageInput.addEventListener('change', async () => {
       const file = imageInput.files[0];
       if (!file) return;
-      uploadBtn.innerText = '⏳';
+
+      uploadBtn.textContent = '⏳';
+      uploadBtn.disabled = true;
+
       const formData = new FormData();
       formData.append('file', file);
+
       try {
         const response = await fetch('https://memepedia-backend.vercel.app/api/upload-to-catbox', {
           method: 'POST',
           body: formData
         });
+
         if (response.ok) {
           const data = await response.json();
           memeInput.value = (memeInput.value + " " + data.url).trim();
+          memeInput.focus();
         }
+      } catch (e) {
+        console.error(e);
       } finally {
-        uploadBtn.innerText = '📷';
+        uploadBtn.textContent = '📷';
+        uploadBtn.disabled = false;
         imageInput.value = '';
       }
     });
 
+    // Initial load + polling
     fetchMessages();
+
+    // You can lower this to 1500 if you want it snappier
     setInterval(fetchMessages, 3000);
   </script>
+
   <script data-goatcounter="https://magicdippyegg.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+          async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
