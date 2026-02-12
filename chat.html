@@ -153,16 +153,9 @@
       margin-top: 50px;
     }
 
-    .messages-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    .messages-container::-webkit-scrollbar-track {
-      background: #222;
-    }
-    .messages-container::-webkit-scrollbar-thumb {
-      background: #cc5500;
-      border-radius: 4px;
-    }
+    .messages-container::-webkit-scrollbar { width: 8px; }
+    .messages-container::-webkit-scrollbar-track { background: #222; }
+    .messages-container::-webkit-scrollbar-thumb { background: #cc5500; border-radius: 4px; }
   </style>
 </head>
 
@@ -212,6 +205,9 @@
     // pending messages so polling does not delete them
     const pendingMessages = new Map(); // clientId -> element
 
+    // pending matcher: key -> clientId (lets us delete the optimistic bubble when server echo arrives)
+    const pendingByKey = new Map();
+
     // track rendered server messages so we only append new ones
     const renderedServerIds = new Set();
 
@@ -227,6 +223,18 @@
         .replace(/'/g, "&#039;");
     }
 
+    function normalizeTextForKey(s) {
+      return String(s || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+    }
+
+    function makePendingKey(content) {
+      // you can add more fields if needed, but content-only is usually enough to kill the echo duplicates
+      return "k:" + normalizeTextForKey(content);
+    }
+
     function formatContent(text) {
       if (!text) return '';
       const safe = escapeHtml(text);
@@ -235,11 +243,9 @@
       return safe.replace(urlPattern, (url) => {
         const lowerUrl = url.toLowerCase();
 
-        // TENOR embed
         if (lowerUrl.includes('tenor.com/view/')) {
           const parts = lowerUrl.split('-');
           const gifId = parts[parts.length - 1];
-
           if (gifId) {
             return `
               <br>
@@ -256,17 +262,14 @@
           }
         }
 
-        // Images & GIFs
         if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
           return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
         }
 
-        // Videos
         if (lowerUrl.match(/\.(mp4|webm)$/)) {
           return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
         }
 
-        // YouTube
         if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
           const videoId = lowerUrl.includes('v=')
             ? lowerUrl.split('v=')[1].split('&')[0]
@@ -304,12 +307,9 @@
     }
 
     function messageServerId(message) {
-      // Prefer stable ids if your backend provides them (Discord message id is perfect)
       if (message && (message.id || message.message_id || message.messageId)) {
         return String(message.id || message.message_id || message.messageId);
       }
-
-      // fallback: build a fingerprint (not perfect, but works)
       const author = message?.author?.username || message?.author || "Unknown";
       const content = message?.content || "";
       const ts = message?.timestamp || message?.createdTimestamp || message?.created_at || "";
@@ -325,6 +325,7 @@
       if (opts.failed) messageElement.classList.add('failed');
       if (opts.clientId) messageElement.dataset.clientId = opts.clientId;
       if (opts.serverId) messageElement.dataset.serverId = opts.serverId;
+      if (opts.pendingKey) messageElement.dataset.pendingKey = opts.pendingKey;
 
       messageElement.innerHTML = `
         <span class="author">${escapeHtml(authorName || 'Unknown')}</span>
@@ -335,7 +336,6 @@
     }
 
     function trimOldMessagesIfNeeded() {
-      // do not delete pending messages
       const all = Array.from(messagesContainer.querySelectorAll(".message"));
       const nonPending = all.filter(el => !el.classList.contains("pending"));
       if (nonPending.length <= MAX_RENDERED_MESSAGES) return;
@@ -349,6 +349,22 @@
       }
     }
 
+    function consumeMatchingPendingIfExists(serverContentText) {
+      // If a server message matches a pending message, remove the pending bubble to avoid duplicates.
+      const key = makePendingKey(serverContentText);
+      const clientId = pendingByKey.get(key);
+      if (!clientId) return false;
+
+      const pendingEl = pendingMessages.get(clientId);
+      if (pendingEl && pendingEl.classList.contains("pending")) {
+        pendingEl.remove();
+      }
+
+      pendingMessages.delete(clientId);
+      pendingByKey.delete(key);
+      return true;
+    }
+
     async function fetchMessages() {
       try {
         const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages', { cache: 'no-store' });
@@ -358,23 +374,25 @@
         let messages = Array.isArray(data.messages) ? data.messages : (Array.isArray(data) ? data : []);
         if (messages.length === 0) return;
 
-        // server returns newest-first in your old code, so reverse to render oldest to newest
+        // render oldest -> newest
         messages.reverse();
 
         const shouldAutoScroll = isUserNearBottom();
-
         let appendedAny = false;
 
         for (const message of messages) {
           const sid = messageServerId(message);
 
-          // Skip if already rendered
           if (renderedServerIds.has(sid)) continue;
 
           const authorName = message.author?.username || message.author || 'Unknown';
-          let contentHtml = formatContent(message.content || '');
+          const rawText = message.content || "";
 
-          // Attachments
+          // If this server message is the echo of something we just sent, delete the optimistic bubble first
+          consumeMatchingPendingIfExists(rawText);
+
+          let contentHtml = formatContent(rawText);
+
           if (message.attachments && message.attachments.length > 0) {
             message.attachments.forEach(attachment => {
               const fileUrl = attachment.url;
@@ -394,12 +412,10 @@
           appendedAny = true;
         }
 
-        // Re-append pending messages so they always appear at bottom
-        // (This does not destroy them, so media inside pending does not restart either)
+        // keep any remaining pending messages at the bottom without recreating them
         const pendingNodes = Array.from(pendingMessages.values()).filter(Boolean);
         pendingNodes.forEach(node => {
-          if (node.parentElement !== messagesContainer) messagesContainer.appendChild(node);
-          else messagesContainer.appendChild(node); // move to bottom
+          if (node.parentElement === messagesContainer) messagesContainer.appendChild(node);
         });
 
         trimOldMessagesIfNeeded();
@@ -412,7 +428,6 @@
       }
     }
 
-    // Message Sending (Optimistic UI)
     async function sendMessage() {
       const memeContent = memeInput.value.trim();
       if (!memeContent) return;
@@ -420,9 +435,14 @@
       const clientId = newClientId();
       const shouldAutoScroll = isUserNearBottom();
 
-      const pendingEl = buildMessageElement("You", formatContent(memeContent), { pending: true, clientId });
+      const pendingKey = makePendingKey(memeContent);
+
+      // show optimistic bubble
+      const pendingEl = buildMessageElement("You", formatContent(memeContent), { pending: true, clientId, pendingKey });
       messagesContainer.appendChild(pendingEl);
+
       pendingMessages.set(clientId, pendingEl);
+      pendingByKey.set(pendingKey, clientId);
 
       if (shouldAutoScroll) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -445,13 +465,10 @@
           return;
         }
 
-        // Turn normal immediately
-        pendingEl.classList.remove('pending');
-        pendingMessages.delete(clientId);
-
+        // keep it pending until the server echo arrives (then fetchMessages will remove it)
         setSendUiState(false);
 
-        // Pull server messages so it appears as the real message (and we can dedupe)
+        // poll immediately so the echo is consumed fast
         fetchMessages();
       } catch (error) {
         console.error(error);
@@ -470,7 +487,6 @@
       }
     });
 
-    // Image Upload Logic
     uploadBtn.addEventListener('click', () => imageInput.click());
 
     imageInput.addEventListener('change', async () => {
@@ -503,7 +519,6 @@
       }
     });
 
-    // Initial load + polling
     fetchMessages();
     setInterval(fetchMessages, 3000);
   </script>
