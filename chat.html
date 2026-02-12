@@ -225,34 +225,69 @@
         .replace(/'/g, "&#039;");
     }
 
-    function formatContent(text) {
-      if (!text) return '';
-      const safe = escapeHtml(text);
-      const urlPattern = /(https?:\/\/[^\s]+)/g;
-      return safe.replace(urlPattern, (url) => {
-        const lowerUrl = url.toLowerCase();
+function formatContent(text) {
+  if (!text) return '';
+  const safe = escapeHtml(text);
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-        // Images & GIFs
-        if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-          return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
-        }
+  return safe.replace(urlPattern, (url) => {
+    const lowerUrl = url.toLowerCase();
 
-        // Videos
-        if (lowerUrl.match(/\.(mp4|webm)$/)) {
-          return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
-        }
+    // ✅ TENOR EMBED
+    if (lowerUrl.includes('tenor.com/view/')) {
+      const parts = lowerUrl.split('-');
+      const gifId = parts[parts.length - 1];
 
-        // YouTube
-        if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
-          const videoId = lowerUrl.includes('v=')
-            ? lowerUrl.split('v=')[1].split('&')[0]
-            : lowerUrl.split('/').pop();
-          return `<br><iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe><br>`;
-        }
-
-        return `<a href="${url}" target="_blank" rel="noopener" style="color: #cc5500;">${url}</a>`;
-      });
+      if (gifId) {
+        return `
+          <br>
+          <iframe 
+            src="https://tenor.com/embed/${gifId}" 
+            width="100%" 
+            height="300" 
+            frameborder="0" 
+            allowfullscreen 
+            style="border-radius:8px;">
+          </iframe>
+          <br>
+        `;
+      }
     }
+
+    // Images & GIFs
+    if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
+      return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
+    }
+
+    // Videos
+    if (lowerUrl.match(/\.(mp4|webm)$/)) {
+      return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
+    }
+
+    // YouTube
+    if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
+      const videoId = lowerUrl.includes('v=')
+        ? lowerUrl.split('v=')[1].split('&')[0]
+        : lowerUrl.split('/').pop();
+
+      return `
+        <br>
+        <iframe 
+          width="100%" 
+          height="250" 
+          src="https://www.youtube.com/embed/${videoId}" 
+          frameborder="0" 
+          allowfullscreen 
+          style="border-radius:8px;">
+        </iframe>
+        <br>
+      `;
+    }
+
+    return `<a href="${url}" target="_blank" rel="noopener" style="color: #cc5500;">${url}</a>`;
+  });
+}
+
 
     function isUserNearBottom() {
       return (messagesContainer.scrollHeight - messagesContainer.scrollTop) <= (messagesContainer.clientHeight + 120);
