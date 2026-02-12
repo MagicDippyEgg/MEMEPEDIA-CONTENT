@@ -8,8 +8,8 @@
   <meta name="application-name" content="Memepedia Rebirth" />
   <link rel="canonical" href="https://memepedia.pages.dev/chat" />
   <link rel="icon" href="icon_smaller.jpg" type="image/png" />
+
   <style>
-    /* ORIGINAL MEMEPEDIA STYLING */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #000000;
@@ -53,7 +53,6 @@
       cursor: not-allowed;
     }
 
-    /* CHAT UI IMPROVEMENTS */
     .chat-container {
       margin: 30px auto;
       padding: 20px;
@@ -94,7 +93,6 @@
       color: #ffffff;
     }
 
-    /* Pending message style */
     .message.pending {
       opacity: 0.65;
       border-left-color: #ffb067;
@@ -120,7 +118,6 @@
       color: #ff4d4d;
     }
 
-    /* MEDIA EMBEDS */
     .embed-media {
       max-width: 100%;
       max-height: 400px;
@@ -156,7 +153,6 @@
       margin-top: 50px;
     }
 
-    /* Custom Scrollbar for the Chat Box */
     .messages-container::-webkit-scrollbar {
       width: 8px;
     }
@@ -213,8 +209,14 @@
     const uploadBtn = document.getElementById('uploadBtn');
     const imageInput = document.getElementById('imageInput');
 
-    // Track pending messages so polling does not wipe them out
-    const pendingMessages = new Map(); // id -> element
+    // pending messages so polling does not delete them
+    const pendingMessages = new Map(); // clientId -> element
+
+    // track rendered server messages so we only append new ones
+    const renderedServerIds = new Set();
+
+    // safety: keep DOM from growing forever
+    const MAX_RENDERED_MESSAGES = 250;
 
     function escapeHtml(str) {
       return String(str)
@@ -225,117 +227,151 @@
         .replace(/'/g, "&#039;");
     }
 
-function formatContent(text) {
-  if (!text) return '';
-  const safe = escapeHtml(text);
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
+    function formatContent(text) {
+      if (!text) return '';
+      const safe = escapeHtml(text);
+      const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  return safe.replace(urlPattern, (url) => {
-    const lowerUrl = url.toLowerCase();
+      return safe.replace(urlPattern, (url) => {
+        const lowerUrl = url.toLowerCase();
 
-    // ✅ TENOR EMBED
-    if (lowerUrl.includes('tenor.com/view/')) {
-      const parts = lowerUrl.split('-');
-      const gifId = parts[parts.length - 1];
+        // TENOR embed
+        if (lowerUrl.includes('tenor.com/view/')) {
+          const parts = lowerUrl.split('-');
+          const gifId = parts[parts.length - 1];
 
-      if (gifId) {
-        return `
-          <br>
-          <iframe 
-            src="https://tenor.com/embed/${gifId}" 
-            width="100%" 
-            height="300" 
-            frameborder="0" 
-            allowfullscreen 
-            style="border-radius:8px;">
-          </iframe>
-          <br>
-        `;
-      }
+          if (gifId) {
+            return `
+              <br>
+              <iframe
+                src="https://tenor.com/embed/${gifId}"
+                width="100%"
+                height="300"
+                frameborder="0"
+                allowfullscreen
+                style="border-radius:8px;">
+              </iframe>
+              <br>
+            `;
+          }
+        }
+
+        // Images & GIFs
+        if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
+          return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
+        }
+
+        // Videos
+        if (lowerUrl.match(/\.(mp4|webm)$/)) {
+          return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
+        }
+
+        // YouTube
+        if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
+          const videoId = lowerUrl.includes('v=')
+            ? lowerUrl.split('v=')[1].split('&')[0]
+            : lowerUrl.split('/').pop();
+
+          return `
+            <br>
+            <iframe
+              width="100%"
+              height="250"
+              src="https://www.youtube.com/embed/${videoId}"
+              frameborder="0"
+              allowfullscreen
+              style="border-radius:8px;">
+            </iframe>
+            <br>
+          `;
+        }
+
+        return `<a href="${url}" target="_blank" rel="noopener" style="color: #cc5500;">${url}</a>`;
+      });
     }
-
-    // Images & GIFs
-    if (lowerUrl.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-      return `<br><img src="${url}" class="embed-media" loading="lazy" /><br>`;
-    }
-
-    // Videos
-    if (lowerUrl.match(/\.(mp4|webm)$/)) {
-      return `<br><video controls class="embed-media"><source src="${url}"></video><br>`;
-    }
-
-    // YouTube
-    if (lowerUrl.includes('youtube.com/watch?v=') || lowerUrl.includes('youtu.be/')) {
-      const videoId = lowerUrl.includes('v=')
-        ? lowerUrl.split('v=')[1].split('&')[0]
-        : lowerUrl.split('/').pop();
-
-      return `
-        <br>
-        <iframe 
-          width="100%" 
-          height="250" 
-          src="https://www.youtube.com/embed/${videoId}" 
-          frameborder="0" 
-          allowfullscreen 
-          style="border-radius:8px;">
-        </iframe>
-        <br>
-      `;
-    }
-
-    return `<a href="${url}" target="_blank" rel="noopener" style="color: #cc5500;">${url}</a>`;
-  });
-}
-
 
     function isUserNearBottom() {
       return (messagesContainer.scrollHeight - messagesContainer.scrollTop) <= (messagesContainer.clientHeight + 120);
     }
 
-    function addMessageToUI(author, content, opts = {}) {
+    function setSendUiState(isSending) {
+      sendBtn.disabled = isSending;
+      sendBtn.textContent = isSending ? "Sending..." : "Send";
+    }
+
+    function newClientId() {
+      return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
+    function messageServerId(message) {
+      // Prefer stable ids if your backend provides them (Discord message id is perfect)
+      if (message && (message.id || message.message_id || message.messageId)) {
+        return String(message.id || message.message_id || message.messageId);
+      }
+
+      // fallback: build a fingerprint (not perfect, but works)
+      const author = message?.author?.username || message?.author || "Unknown";
+      const content = message?.content || "";
+      const ts = message?.timestamp || message?.createdTimestamp || message?.created_at || "";
+      const att = Array.isArray(message?.attachments) ? message.attachments.map(a => a?.url || "").join("|") : "";
+      return "fp_" + btoa(unescape(encodeURIComponent(author + "||" + content + "||" + ts + "||" + att))).slice(0, 80);
+    }
+
+    function buildMessageElement(authorName, contentHtml, opts = {}) {
       const messageElement = document.createElement('div');
       messageElement.classList.add('message');
 
       if (opts.pending) messageElement.classList.add('pending');
       if (opts.failed) messageElement.classList.add('failed');
       if (opts.clientId) messageElement.dataset.clientId = opts.clientId;
+      if (opts.serverId) messageElement.dataset.serverId = opts.serverId;
 
       messageElement.innerHTML = `
-        <span class="author">${escapeHtml(author || 'Unknown')}</span>
-        <span class="content">${formatContent(content || '')}</span>
+        <span class="author">${escapeHtml(authorName || 'Unknown')}</span>
+        <span class="content">${contentHtml || ''}</span>
       `;
 
-      messagesContainer.appendChild(messageElement);
       return messageElement;
+    }
+
+    function trimOldMessagesIfNeeded() {
+      // do not delete pending messages
+      const all = Array.from(messagesContainer.querySelectorAll(".message"));
+      const nonPending = all.filter(el => !el.classList.contains("pending"));
+      if (nonPending.length <= MAX_RENDERED_MESSAGES) return;
+
+      const toRemoveCount = nonPending.length - MAX_RENDERED_MESSAGES;
+      for (let i = 0; i < toRemoveCount; i++) {
+        const el = nonPending[i];
+        const sid = el.dataset.serverId;
+        if (sid) renderedServerIds.delete(sid);
+        el.remove();
+      }
     }
 
     async function fetchMessages() {
       try {
-        const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages', {
-          cache: 'no-store'
-        });
+        const response = await fetch('https://memepedia-backend.vercel.app/api/get-latest-messages', { cache: 'no-store' });
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
 
         const data = await response.json();
         let messages = Array.isArray(data.messages) ? data.messages : (Array.isArray(data) ? data : []);
-
         if (messages.length === 0) return;
+
+        // server returns newest-first in your old code, so reverse to render oldest to newest
+        messages.reverse();
 
         const shouldAutoScroll = isUserNearBottom();
 
-        // Preserve pending DOM nodes before clearing
-        const pendingNodes = Array.from(pendingMessages.values()).filter(Boolean);
+        let appendedAny = false;
 
-        messagesContainer.innerHTML = '';
+        for (const message of messages) {
+          const sid = messageServerId(message);
 
-        // Reverse to show newest at bottom
-        messages.reverse().forEach((message) => {
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('message');
+          // Skip if already rendered
+          if (renderedServerIds.has(sid)) continue;
 
           const authorName = message.author?.username || message.author || 'Unknown';
-
           let contentHtml = formatContent(message.content || '');
 
           // Attachments
@@ -351,18 +387,24 @@ function formatContent(text) {
             });
           }
 
-          messageElement.innerHTML = `
-            <span class="author">${escapeHtml(authorName)}</span>
-            <span class="content">${contentHtml}</span>
-          `;
-
+          const messageElement = buildMessageElement(authorName, contentHtml, { serverId: sid });
           messagesContainer.appendChild(messageElement);
+
+          renderedServerIds.add(sid);
+          appendedAny = true;
+        }
+
+        // Re-append pending messages so they always appear at bottom
+        // (This does not destroy them, so media inside pending does not restart either)
+        const pendingNodes = Array.from(pendingMessages.values()).filter(Boolean);
+        pendingNodes.forEach(node => {
+          if (node.parentElement !== messagesContainer) messagesContainer.appendChild(node);
+          else messagesContainer.appendChild(node); // move to bottom
         });
 
-        // Re-append pending messages so polling does not delete them
-        pendingNodes.forEach(node => messagesContainer.appendChild(node));
+        trimOldMessagesIfNeeded();
 
-        if (shouldAutoScroll) {
+        if (shouldAutoScroll && appendedAny) {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
       } catch (error) {
@@ -370,68 +412,57 @@ function formatContent(text) {
       }
     }
 
-    function setSendUiState(isSending) {
-      sendBtn.disabled = isSending;
-      sendBtn.textContent = isSending ? "Sending..." : "Send";
-    }
-
-    function newClientId() {
-      return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
-    }
-
     // Message Sending (Optimistic UI)
     async function sendMessage() {
-  const memeContent = memeInput.value.trim();
-  if (!memeContent) return;
+      const memeContent = memeInput.value.trim();
+      if (!memeContent) return;
 
-  const clientId = newClientId();
+      const clientId = newClientId();
+      const shouldAutoScroll = isUserNearBottom();
 
-  // Check BEFORE adding message
-  const shouldAutoScroll = isUserNearBottom();
+      const pendingEl = buildMessageElement("You", formatContent(memeContent), { pending: true, clientId });
+      messagesContainer.appendChild(pendingEl);
+      pendingMessages.set(clientId, pendingEl);
 
-  // Instantly show it in chat
-  const pendingEl = addMessageToUI("You", memeContent, { pending: true, clientId });
-  pendingMessages.set(clientId, pendingEl);
+      if (shouldAutoScroll) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
 
-  // ✅ Force scroll after adding
-  if (shouldAutoScroll) {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
+      memeInput.value = '';
+      setSendUiState(true);
 
-  memeInput.value = '';
-  setSendUiState(true);
+      try {
+        const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: memeContent })
+        });
 
-  try {
-    const response = await fetch('https://memepedia-backend.vercel.app/api/send-to-discord', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: memeContent })
-    });
+        if (!response.ok) {
+          pendingEl.classList.remove('pending');
+          pendingEl.classList.add('failed');
+          setSendUiState(false);
+          return;
+        }
 
-    if (!response.ok) {
-      pendingEl.classList.remove('pending');
-      pendingEl.classList.add('failed');
-      setSendUiState(false);
-      return;
+        // Turn normal immediately
+        pendingEl.classList.remove('pending');
+        pendingMessages.delete(clientId);
+
+        setSendUiState(false);
+
+        // Pull server messages so it appears as the real message (and we can dedupe)
+        fetchMessages();
+      } catch (error) {
+        console.error(error);
+        pendingEl.classList.remove('pending');
+        pendingEl.classList.add('failed');
+        setSendUiState(false);
+      }
     }
-
-    pendingEl.classList.remove('pending');
-    pendingMessages.delete(clientId);
-
-    setSendUiState(false);
-    fetchMessages();
-  } catch (error) {
-    console.error(error);
-    pendingEl.classList.remove('pending');
-    pendingEl.classList.add('failed');
-    setSendUiState(false);
-  }
-}
-
 
     sendBtn.addEventListener('click', sendMessage);
 
-    // Enter Key (no shift to keep it simple)
     memeInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -474,8 +505,6 @@ function formatContent(text) {
 
     // Initial load + polling
     fetchMessages();
-
-    // You can lower this to 1500 if you want it snappier
     setInterval(fetchMessages, 3000);
   </script>
 
