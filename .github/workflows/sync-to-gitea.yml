@@ -3,11 +3,14 @@ name: Sync to Gitea
 on:
   push:
     branches:
-      - main
+      - '**'
+    tags:
+      - '**'
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
