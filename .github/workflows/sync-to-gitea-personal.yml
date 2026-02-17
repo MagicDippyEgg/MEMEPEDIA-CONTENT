@@ -3,9 +3,7 @@ name: Sync to Personal Gitea
 on:
   push:
     branches:
-      - '**'
-    tags:
-      - '**'
+      - main
 
 jobs:
   sync:

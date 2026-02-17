@@ -3,9 +3,7 @@ name: Mirror to Codeberg
 on:
   push:
     branches:
-      - '**'
-    tags:
-      - '**'
+      - main
 
 jobs:
   mirror:
