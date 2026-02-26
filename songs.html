@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spotify Meme Songs - Memepedia: Rebirth</title>
-    <meta property="og:site_name" content="Memepedia Rebirth">
-	<meta name="application-name" content="Memepedia Rebirth">
-	<link rel="canonical" href="https://memepedia.pages.dev/songs" />
-<link rel="icon" href="icon_smaller.jpg" type="image/png">
+  <meta property="og:site_name" content="Memepedia Rebirth">
+  <meta name="application-name" content="Memepedia Rebirth">
+  <link rel="canonical" href="https://memepedia.pages.dev/songs" />
+  <link rel="icon" href="icon_smaller.jpg" type="image/png">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -16,17 +16,13 @@
       margin: 0;
       padding: 0;
       text-align: center;
+      /* Prevent the fixed footer from covering content */
+      padding-bottom: 70px;
     }
     header {
       background-color: #cc5500;
       color: #ffffff;
       padding: 20px 0;
-    }
-    header img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-bottom: 10px;
     }
     main {
       padding: 30px;
@@ -52,6 +48,7 @@
       position: fixed;
       width: 100%;
       bottom: 0;
+      left: 0;
     }
     .button {
       display: inline-block;
@@ -62,10 +59,39 @@
       border-radius: 8px;
       font-size: 16px;
       transition: background-color 0.3s;
+      margin: 6px;
+      border: none;
+      cursor: pointer;
     }
-
     .button:hover {
       background-color: #b34700;
+    }
+    .pager {
+      margin: 18px 0 10px;
+    }
+    .pager .button[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .page-indicator {
+      display: inline-block;
+      margin: 0 10px;
+      color: #dddddd;
+      font-size: 16px;
+    }
+    .page-jump {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .page-jump .button {
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+    .page-jump .button.active {
+      outline: 2px solid #ffffff;
     }
   </style>
 </head>
@@ -80,149 +106,157 @@
 <a href="https://memepedia.pages.dev/" class="button">Go Back Home</a>
 
 <main>
-  <div class="spotify-embed">
-    <!-- Embed Spotify Track 1 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/7ruYGYVdtbromjyUtSDwuo" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-
-    <!-- Embed Spotify Track 2 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/0UeYCHOETPfai02uskjJ3x" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-
-    <!-- Embed Spotify Track 3 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/4PTG3Z6ehGkBFwjybzWkR8" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-
-    <!-- Embed Spotify Track 4 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/4zW7Titqo6iTdhtIl8T3RG" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-	 <!-- Embed Spotify Track 5 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/63eRbzK1LmC5hwpqzH31pS" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-		 <!-- Embed Spotify Track 6 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/3hWfKBt3n7j1xqIy6LA5ve" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-			 <!-- Embed Spotify Track 7 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/2WfaOiMkCvy7F5fcp2zZ8L" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-				 <!-- Embed Spotify Track 8 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/5RBOcBpJXaNnHCGViJmYhh" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-					 <!-- Embed Spotify Track 9 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/03UrZgTINDqvnUMbbIMhql" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-						 <!-- Embed Spotify Track 10 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/4LwU4Vp6od3Sb08CsP99GC" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-							 <!-- Embed Spotify Track 11 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/6rT0BKAbg4y35tukHcfk4N" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-								 <!-- Embed Spotify Track 12 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/3K6ljaWiPpywzZ27Z2flDQ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-									 <!-- Embed Spotify Track 12 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/6Dk5fHTvH897XrVzCO64Mx" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-										 <!-- Embed Spotify Track 13 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/3zXIvb4nZ3cTdT8CsbTy3U" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-											 <!-- Embed Spotify Track 14 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/4IYKjN1DrYzxKXt0umJqsG" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-												 <!-- Embed Spotify Track 15 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/3bC1ahPIYt1btJzSSEyyrF" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-													 <!-- Embed Spotify Track 16 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/1ckhUtD8nBH2ShPlU8w2nU" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-														 <!-- Embed Spotify Track 17 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/6epn3r7S14KUqlReYr77hA" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-															 <!-- Embed Spotify Track 18 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/2En6kxGCjZxXmKJ1IYu4Fp" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																 <!-- Embed Spotify Track 19 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/1WltJQYQ61mdANZsQseCHn" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																	 <!-- Embed Spotify Track 20 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/4qDHt2ClApBBzDAvhNGWFd" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																		 <!-- Embed Spotify Track 21 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/0umfaFH9whLN1JwyGw8ZyL" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-																			 <!-- Embed Spotify Track 22 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/7m0x6PMfBcVZJqAl4hrFzc" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																				 <!-- Embed Spotify Track 23 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/2n5sAzeWh5LqnV9cGBjgGr" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																					 <!-- Embed Spotify Track 24 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/3DamFFqW32WihKkTVlwTYQ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																						 <!-- Embed Spotify Track 25 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/2NqokDBGuaIXrTNDlr09y9" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-	
-																							 <!-- Embed Spotify Track 26 -->
-    <div class="spotify-item">
-      <iframe src="https://open.spotify.com/embed/track/6crBy2sODw2HS53xquM6us" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media" loading="lazy"></iframe>
-    </div>
-
-
+  <div class="pager">
+    <button class="button" id="prevBtn">Previous</button>
+    <span class="page-indicator" id="pageInfo">Page 1</span>
+    <button class="button" id="nextBtn">Next</button>
   </div>
+
+  <div class="page-jump" id="pageJump"></div>
+
+  <div class="spotify-embed" id="songs"></div>
 </main>
 
 <footer>
   Created by St1cky N0te, with help from Magic Dippy Egg | Memepedia: Rebirth
 </footer>
+
+<script>
+  /*
+    How to add more songs:
+    1) Paste the Spotify track ID into the list below.
+       Example link: https://open.spotify.com/track/7ruYGYVdtbromjyUtSDwuo
+       The ID is the part after /track/
+  */
+  const tracks = [
+      "7ruYGYVdtbromjyUtSDwuo",
+      "0UeYCHOETPfai02uskjJ3x",
+      "4PTG3Z6ehGkBFwjybzWkR8",
+      "4zW7Titqo6iTdhtIl8T3RG",
+      "63eRbzK1LmC5hwpqzH31pS",
+      "3hWfKBt3n7j1xqIy6LA5ve",
+      "2WfaOiMkCvy7F5fcp2zZ8L",
+      "5RBOcBpJXaNnHCGViJmYhh",
+      "03UrZgTINDqvnUMbbIMhql",
+      "4LwU4Vp6od3Sb08CsP99GC",
+      "6rT0BKAbg4y35tukHcfk4N",
+      "3K6ljaWiPpywzZ27Z2flDQ",
+      "6Dk5fHTvH897XrVzCO64Mx",
+      "3zXIvb4nZ3cTdT8CsbTy3U",
+      "4IYKjN1DrYzxKXt0umJqsG",
+      "3bC1ahPIYt1btJzSSEyyrF",
+      "1ckhUtD8nBH2ShPlU8w2nU",
+      "6epn3r7S14KUqlReYr77hA",
+      "2En6kxGCjZxXmKJ1IYu4Fp",
+      "1WltJQYQ61mdANZsQseCHn",
+      "4qDHt2ClApBBzDAvhNGWFd",
+      "0umfaFH9whLN1JwyGw8ZyL",
+      "7m0x6PMfBcVZJqAl4hrFzc",
+      "2n5sAzeWh5LqnV9cGBjgGr",
+      "3DamFFqW32WihKkTVlwTYQ",
+      "2NqokDBGuaIXrTNDlr09y9",
+      "6crBy2sODw2HS53xquM6us"
+  ];
+
+  const perPage = 12; // change this if you want more or fewer embeds per page
+  const songsEl = document.getElementById('songs');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const pageInfo = document.getElementById('pageInfo');
+  const pageJump = document.getElementById('pageJump');
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function getTotalPages() {
+    return Math.max(1, Math.ceil(tracks.length / perPage));
+  }
+
+  function getPageFromHash() {
+    // supports #page=2 or #2
+    const h = (location.hash || '').replace('#', '').trim();
+    if (!h) return 1;
+
+    const match = h.match(/page\s*=\s*(\d+)/i);
+    if (match) return parseInt(match[1], 10) || 1;
+
+    const asNum = parseInt(h, 10);
+    return isNaN(asNum) ? 1 : asNum;
+  }
+
+  function setHashForPage(page) {
+    location.hash = 'page=' + page;
+  }
+
+  function renderPage(page) {
+    const totalPages = getTotalPages();
+    const p = clamp(page, 1, totalPages);
+
+    // clear current iframes so the browser is not rendering everything at once
+    songsEl.innerHTML = '';
+
+    const start = (p - 1) * perPage;
+    const end = Math.min(start + perPage, tracks.length);
+
+    for (let i = start; i < end; i++) {
+      const id = tracks[i];
+      const wrap = document.createElement('div');
+      wrap.className = 'spotify-item';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://open.spotify.com/embed/track/' + id;
+      iframe.width = '300';
+      iframe.height = '380';
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allowtransparency', 'true');
+      iframe.setAttribute('allow', 'encrypted-media');
+      iframe.loading = 'lazy';
+
+      wrap.appendChild(iframe);
+      songsEl.appendChild(wrap);
+    }
+
+    pageInfo.textContent = 'Page ' + p + ' of ' + totalPages;
+
+    prevBtn.disabled = (p <= 1);
+    nextBtn.disabled = (p >= totalPages);
+
+    renderPageJump(p, totalPages);
+  }
+
+  function renderPageJump(current, totalPages) {
+    pageJump.innerHTML = '';
+
+    for (let p = 1; p <= totalPages; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'button' + (p === current ? ' active' : '');
+      btn.textContent = String(p);
+      btn.addEventListener('click', () => setHashForPage(p));
+      pageJump.appendChild(btn);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p - 1);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p + 1);
+  });
+
+  window.addEventListener('hashchange', () => {
+    renderPage(getPageFromHash());
+  });
+
+  // first render
+  renderPage(getPageFromHash());
+</script>
+
 <script data-goatcounter="https://magicdippyegg.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+
 </body>
 </html>
