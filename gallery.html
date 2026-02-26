@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Memepedia: Meme Gallery</title>
-    <meta property="og:site_name" content="Memepedia Rebirth">
-	<meta name="application-name" content="Memepedia Rebirth">
-	<link rel="canonical" href="https://memepedia.pages.dev/gallery" />
-<link rel="icon" href="icon_smaller.jpg" type="image/png">
+  <meta property="og:site_name" content="Memepedia Rebirth">
+  <meta name="application-name" content="Memepedia Rebirth">
+  <link rel="canonical" href="https://memepedia.pages.dev/gallery" />
+  <link rel="icon" href="icon_smaller.jpg" type="image/png">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -46,20 +46,6 @@
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(204, 85, 0, 0.6);
     }
-    a.button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
-      background-color: #cc5500;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 18px;
-      transition: background-color 0.3s;
-    }
-    a.button:hover {
-      background-color: #b34700;
-    }
     footer {
       background-color: #111;
       color: #aaa;
@@ -67,7 +53,53 @@
       font-size: 14px;
       margin-top: 30px;
     }
-    
+
+
+    .button {
+      display: inline-block;
+      background-color: #cc5500;
+      color: white;
+      padding: 15px 25px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      margin: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #b34700;
+    }
+    .pager {
+      margin: 18px 0 10px;
+    }
+    .pager .button[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .page-indicator {
+      display: inline-block;
+      margin: 0 10px;
+      color: #dddddd;
+      font-size: 16px;
+    }
+    .page-jump {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .page-jump .button {
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+    .page-jump .button.active {
+      outline: 2px solid #ffffff;
+    }
+
+
     /* Lightbox styles */
     .lightbox {
       display: none;
@@ -110,42 +142,23 @@
   <h1>Meme Gallery</h1>
 </header>
 
-<main>
-  <!-- Memes with lazy loading and lightbox functionality -->
-  <img class="meme-thumbnail" src="memes/meme1.webp" alt="Meme1" loading="lazy" data-fullsize="memes/meme1.webp">
-  <img class="meme-thumbnail" src="memes/meme2.jpg" alt="Meme2" loading="lazy" data-fullsize="memes/meme2.jpg">
-  <img class="meme-thumbnail" src="memes/meme3.gif" alt="Meme3" loading="lazy" data-fullsize="memes/meme3.gif">
-  <img class="meme-thumbnail" src="memes/meme4.gif" alt="Meme4" loading="lazy" data-fullsize="memes/meme4.gif">
-  <img class="meme-thumbnail" src="memes/meme5.png" alt="Meme5" loading="lazy" data-fullsize="memes/meme5.png">
-  <img class="meme-thumbnail" src="memes/meme6.webp" alt="Meme6" loading="lazy" data-fullsize="memes/meme6.webp">
-  <img class="meme-thumbnail" src="memes/meme7.webp" alt="Meme7" loading="lazy" data-fullsize="memes/meme7.webp">
-  <img class="meme-thumbnail" src="memes/meme8.gif" alt="Meme8" loading="lazy" data-fullsize="memes/meme8.gif">
-  <img class="meme-thumbnail" src="memes/meme9.webp" alt="Meme9" loading="lazy" data-fullsize="memes/meme9.webp">
-  <img class="meme-thumbnail" src="memes/meme10.jpg" alt="Meme10" loading="lazy" data-fullsize="memes/meme10.jpg">
-  <img class="meme-thumbnail" src="memes/meme11.gif" alt="Meme11" loading="lazy" data-fullsize="memes/meme11.gif">
-  <img class="meme-thumbnail" src="memes/meme12.gif" alt="Meme12" loading="lazy" data-fullsize="memes/meme12.gif">
-  <img class="meme-thumbnail" src="memes/meme13.gif" alt="Meme13" loading="lazy" data-fullsize="memes/meme13.gif">
-  <img class="meme-thumbnail" src="memes/meme14.gif" alt="Meme14" loading="lazy" data-fullsize="memes/meme14.gif">
-  <img class="meme-thumbnail" src="memes/meme15.gif" alt="Meme15" loading="lazy" data-fullsize="memes/meme15.gif">
-  <img class="meme-thumbnail" src="memes/meme16.gif" alt="Meme16" loading="lazy" data-fullsize="memes/meme16.gif">
-  <img class="meme-thumbnail" src="memes/meme17.gif" alt="Meme17" loading="lazy" data-fullsize="memes/meme17.gif">
-  <img class="meme-thumbnail" src="memes/meme18.gif" alt="Meme18" loading="lazy" data-fullsize="memes/meme18.gif">
-  <img class="meme-thumbnail" src="memes/meme19.gif" alt="Meme19" loading="lazy" data-fullsize="memes/meme19.gif">
-  <img class="meme-thumbnail" src="memes/meme20.gif" alt="Meme20" loading="lazy" data-fullsize="memes/meme20.gif">
-  <img class="meme-thumbnail" src="memes/meme21.gif" alt="Meme21" loading="lazy" data-fullsize="memes/meme21.gif">
-  <img class="meme-thumbnail" src="memes/meme22.gif" alt="Meme22" loading="lazy" data-fullsize="memes/meme22.gif">
-  <img class="meme-thumbnail" src="memes/meme23.png" alt="Meme23" loading="lazy" data-fullsize="memes/meme23.png">
-  <img class="meme-thumbnail" src="memes/meme24.gif" alt="Meme24" loading="lazy" data-fullsize="memes/meme24.gif">
-  <img class="meme-thumbnail" src="memes/meme25.gif" alt="Meme25" loading="lazy" data-fullsize="memes/meme25.gif">
-  <img class="meme-thumbnail" src="memes/meme26.png" alt="Meme26" loading="lazy" data-fullsize="memes/meme26.png">
-  <img class="meme-thumbnail" src="memes/meme27.jpg" alt="Meme27" loading="lazy" data-fullsize="memes/meme27.jpg">
-  <img class="meme-thumbnail" src="memes/meme28.jpg" alt="Meme28" loading="lazy" data-fullsize="memes/meme28.jpg">
-  <img class="meme-thumbnail" src="memes/meme29.jpeg" alt="Meme29" loading="lazy" data-fullsize="memes/meme29.jpeg">
-  <img class="meme-thumbnail" src="memes/meme30.png" alt="Meme30" loading="lazy" data-fullsize="memes/meme30.png">
-  <img class="meme-thumbnail" src="memes/meme31.png" alt="Meme31" loading="lazy" data-fullsize="memes/meme31.png">
-  <img class="meme-thumbnail" src="memes/meme32.png" alt="Meme32" loading="lazy" data-fullsize="memes/meme32.png">
-  <img class="meme-thumbnail" src="memes/meme33.png" alt="Meme33" loading="lazy" data-fullsize="memes/meme33.png">
+<div class="pager">
+  <button class="button" id="prevBtn" type="button">Previous</button>
+  <span class="page-indicator" id="pageInfo">Page 1</span>
+  <button class="button" id="nextBtn" type="button">Next</button>
+</div>
+
+<div class="page-jump" id="pageJump"></div>
+
+<main id="gallery">
+  <!-- Thumbnails get rendered here -->
 </main>
+
+<div class="pager">
+  <button class="button" id="prevBtn2" type="button">Previous</button>
+  <span class="page-indicator" id="pageInfo2">Page 1</span>
+  <button class="button" id="nextBtn2" type="button">Next</button>
+</div>
 
 <!-- Lightbox container -->
 <div class="lightbox" id="lightbox">
@@ -153,11 +166,9 @@
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<!-- Button to go back to the home page -->
-<a href="https://memepedia.pages.dev/" class="button">Back to Home</a>
+<br>
 
-<br>
-<br>
+<a href="https://memepedia.pages.dev/" class="button">Back to Home</a>
 <a href="https://forms.gle/B7nmKBurJwLeTfFEA" class="button">Sumbit Meme</a>
 <a href="gallery/videos" class="button">Go to videos</a>
 
@@ -166,46 +177,180 @@
 </footer>
 
 <script>
-  // Lightbox functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const thumbnails = document.querySelectorAll('.meme-thumbnail');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const closeBtn = document.getElementById('close-btn');
-    
-    // Open lightbox when thumbnail is clicked
-    thumbnails.forEach(thumbnail => {
-      thumbnail.addEventListener('click', function() {
-        lightboxImg.src = this.dataset.fullsize;
-        lightboxImg.alt = this.alt;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
-      });
-    });
-    
-    // Close lightbox
-    closeBtn.addEventListener('click', function() {
+  const memes = [
+{thumb: "memes/meme1.webp", full: "memes/meme1.webp", alt: "Meme1"},
+    {thumb: "memes/meme2.jpg", full: "memes/meme2.jpg", alt: "Meme2"},
+    {thumb: "memes/meme3.gif", full: "memes/meme3.gif", alt: "Meme3"},
+    {thumb: "memes/meme4.gif", full: "memes/meme4.gif", alt: "Meme4"},
+    {thumb: "memes/meme5.png", full: "memes/meme5.png", alt: "Meme5"},
+    {thumb: "memes/meme6.webp", full: "memes/meme6.webp", alt: "Meme6"},
+    {thumb: "memes/meme7.webp", full: "memes/meme7.webp", alt: "Meme7"},
+    {thumb: "memes/meme8.gif", full: "memes/meme8.gif", alt: "Meme8"},
+    {thumb: "memes/meme9.webp", full: "memes/meme9.webp", alt: "Meme9"},
+    {thumb: "memes/meme10.jpg", full: "memes/meme10.jpg", alt: "Meme10"},
+    {thumb: "memes/meme11.gif", full: "memes/meme11.gif", alt: "Meme11"},
+    {thumb: "memes/meme12.gif", full: "memes/meme12.gif", alt: "Meme12"},
+    {thumb: "memes/meme13.gif", full: "memes/meme13.gif", alt: "Meme13"},
+    {thumb: "memes/meme14.gif", full: "memes/meme14.gif", alt: "Meme14"},
+    {thumb: "memes/meme15.gif", full: "memes/meme15.gif", alt: "Meme15"},
+    {thumb: "memes/meme16.gif", full: "memes/meme16.gif", alt: "Meme16"},
+    {thumb: "memes/meme17.gif", full: "memes/meme17.gif", alt: "Meme17"},
+    {thumb: "memes/meme18.gif", full: "memes/meme18.gif", alt: "Meme18"},
+    {thumb: "memes/meme19.gif", full: "memes/meme19.gif", alt: "Meme19"},
+    {thumb: "memes/meme20.gif", full: "memes/meme20.gif", alt: "Meme20"},
+    {thumb: "memes/meme21.gif", full: "memes/meme21.gif", alt: "Meme21"},
+    {thumb: "memes/meme22.gif", full: "memes/meme22.gif", alt: "Meme22"},
+    {thumb: "memes/meme23.png", full: "memes/meme23.png", alt: "Meme23"},
+    {thumb: "memes/meme24.gif", full: "memes/meme24.gif", alt: "Meme24"},
+    {thumb: "memes/meme25.gif", full: "memes/meme25.gif", alt: "Meme25"},
+    {thumb: "memes/meme26.png", full: "memes/meme26.png", alt: "Meme26"},
+    {thumb: "memes/meme27.jpg", full: "memes/meme27.jpg", alt: "Meme27"},
+    {thumb: "memes/meme28.jpg", full: "memes/meme28.jpg", alt: "Meme28"},
+    {thumb: "memes/meme29.jpeg", full: "memes/meme29.jpeg", alt: "Meme29"},
+    {thumb: "memes/meme30.png", full: "memes/meme30.png", alt: "Meme30"},
+    {thumb: "memes/meme31.png", full: "memes/meme31.png", alt: "Meme31"},
+    {thumb: "memes/meme32.png", full: "memes/meme32.png", alt: "Meme32"},
+    {thumb: "memes/meme33.png", full: "memes/meme33.png", alt: "Meme33"}
+  ];
+
+  const perPage = 12; // change this if you want more or fewer memes per page
+  const gallery = document.getElementById('gallery');
+
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn2 = document.getElementById('prevBtn2');
+  const nextBtn2 = document.getElementById('nextBtn2');
+  const pageInfo = document.getElementById('pageInfo');
+  const pageInfo2 = document.getElementById('pageInfo2');
+  const pageJump = document.getElementById('pageJump');
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function totalPages() {
+    return Math.max(1, Math.ceil(memes.length / perPage));
+  }
+
+  function getPageFromHash() {
+    // supports #page=2 or #2
+    const h = (location.hash || '').replace('#', '').trim();
+    if (!h) return 1;
+
+    const match = h.match(/page\s*=\s*(\d+)/i);
+    if (match) return parseInt(match[1], 10) || 1;
+
+    const asNum = parseInt(h, 10);
+    return isNaN(asNum) ? 1 : asNum;
+  }
+
+  function setHashForPage(page) {
+    location.hash = 'page=' + page;
+  }
+
+  function renderPageJump(current, pages) {
+    pageJump.innerHTML = '';
+    for (let p = 1; p <= pages; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'button' + (p === current ? ' active' : '');
+      btn.textContent = String(p);
+      btn.addEventListener('click', () => setHashForPage(p));
+      pageJump.appendChild(btn);
+    }
+  }
+
+  function renderPage(page) {
+    const pages = totalPages();
+    const p = clamp(page, 1, pages);
+
+    gallery.innerHTML = '';
+
+    const start = (p - 1) * perPage;
+    const end = Math.min(start + perPage, memes.length);
+
+    for (let i = start; i < end; i++) {
+      const m = memes[i];
+      const img = document.createElement('img');
+      img.className = 'meme-thumbnail';
+      img.src = m.thumb;
+      img.alt = m.alt;
+      img.loading = 'lazy';
+      img.dataset.fullsize = m.full;
+      gallery.appendChild(img);
+    }
+
+    const label = 'Page ' + p + ' of ' + pages;
+    pageInfo.textContent = label;
+    pageInfo2.textContent = label;
+
+    prevBtn.disabled = (p <= 1);
+    prevBtn2.disabled = (p <= 1);
+    nextBtn.disabled = (p >= pages);
+    nextBtn2.disabled = (p >= pages);
+
+    renderPageJump(p, pages);
+  }
+
+  prevBtn.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p - 1);
+  });
+  nextBtn.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p + 1);
+  });
+  prevBtn2.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p - 1);
+  });
+  nextBtn2.addEventListener('click', () => {
+    const p = getPageFromHash();
+    setHashForPage(p + 1);
+  });
+
+  window.addEventListener('hashchange', () => {
+    renderPage(getPageFromHash());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Lightbox functionality (event delegation so it works across pages)
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const closeBtn = document.getElementById('close-btn');
+
+  gallery.addEventListener('click', function(e) {
+    const target = e.target;
+    if (target && target.classList.contains('meme-thumbnail')) {
+      lightboxImg.src = target.dataset.fullsize || target.src;
+      lightboxImg.alt = target.alt || '';
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  closeBtn.addEventListener('click', function() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  lightbox.addEventListener('click', function(e) {
+    if (e.target === lightbox) {
       lightbox.classList.remove('active');
       document.body.style.overflow = 'auto';
-    });
-    
-    // Close lightbox when clicking outside the image
-    lightbox.addEventListener('click', function(e) {
-      if (e.target === lightbox) {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
-    
-    // Close lightbox with ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
+    }
   });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  });
+
+  // first render
+  renderPage(getPageFromHash());
 </script>
+
 <script data-goatcounter="https://magicdippyegg.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </body>
