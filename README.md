@@ -13,17 +13,11 @@ Memepedia Rebirth is a community focused on memes, art, and creative projects. T
 
 Some things available in the community:
 
-### Meme challenges
-Occasional meme challenges where people can post entries and vote on their favourites.
-
 ### Art and creative posts
 A place to share artwork, edits, and other creative projects.
 
 ### Polls and leaderboards
 Polls and progress tracking for community events and ideas.
-
-### AI chatbot
-A chatbot is also available for people who want to mess around or chat in the server.
 
 ## Get involved
 
